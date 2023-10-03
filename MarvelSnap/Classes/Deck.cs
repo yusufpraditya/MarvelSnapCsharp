@@ -3,7 +3,8 @@ namespace MarvelSnap;
 public class Deck
 {
 	private List<CharacterCard> _cards = new();
-	public const int MaxCardCount = 20;
+	private CharacterCard? _cardToDraw;
+	public const int MaxCardCount = 12;
 	public int Id { get; set; }
 	public string Name { get; set; }
 	
@@ -55,26 +56,20 @@ public class Deck
 		}
 	}
 	
-	public Card? Draw() 
+	public CharacterCard? Draw() 
 	{
-		Card cardToDraw;
-		if (!IsEmpty()) 
+		if (_cards.Count > 0) 
 		{
-			cardToDraw = _cards[0];	
+			_cardToDraw = _cards[0];
+			_cards.RemoveAt(0);
+			return _cardToDraw;
 		}
-		// if (_cards.Count > 0) 
-		// {
-		// 	return cardToDraw;
-		// }
-		// else 
-		// {
-		// 	return null;
-		// }
+		else return null;
 	}
 	
-	private bool IsEmpty() 
+	public bool IsFull() 
 	{
-		if (_cards.Count <= 0) return true;
+		if (_cards.Count == MaxCardCount) return true;
 		else return false;
 	}
 }

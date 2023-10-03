@@ -1,6 +1,6 @@
 ﻿namespace MarvelSnap;
 
-public class Player
+public class Player : IPlayer
 {
 	public int Id { get; set; }
 	public string Name { get; set; }

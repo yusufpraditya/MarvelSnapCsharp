@@ -2,7 +2,5 @@
 
 public enum CharacterType
 {
-	Forge,
-	Thor,
-	CaptainAmerica
+	AntMan
 }

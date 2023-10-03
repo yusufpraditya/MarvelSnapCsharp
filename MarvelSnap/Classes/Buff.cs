@@ -2,14 +2,12 @@
 
 public class Buff : IComparable<Buff>
 {
-	public int Id { get; set; }
 	public int Value { get; set; }
 	public BuffType Type { get; set; }
 	public BuffOperation Operation { get; set; }
 	
-	public Buff(int id, int value, BuffType type, BuffOperation operation) 
+	public Buff(int value, BuffType type, BuffOperation operation) 
 	{
-		Id = id;
 		Value = value;
 		Type = type;
 		Operation = operation;

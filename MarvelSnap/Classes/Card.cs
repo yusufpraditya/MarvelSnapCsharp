@@ -6,7 +6,7 @@ public abstract class Card
 	public string Name { get; set; }
 	public string Description { get; set; }
 	
-	protected Card(int id, string name, string description) 
+	public Card(int id, string name, string description) 
 	{
 		Id = id;
 		Name = name;
