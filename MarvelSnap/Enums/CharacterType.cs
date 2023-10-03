@@ -1,6 +1,6 @@
 ﻿namespace MarvelSnap;
 
-public enum CharacterId
+public enum CharacterType
 {
 	Forge,
 	Thor,

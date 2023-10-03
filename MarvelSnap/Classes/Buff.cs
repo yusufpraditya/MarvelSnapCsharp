@@ -1,6 +1,6 @@
 ﻿namespace MarvelSnap;
 
-public class Buff
+public class Buff : IComparable<Buff>
 {
 	public int Id { get; set; }
 	public int Value { get; set; }
@@ -19,7 +19,19 @@ public class Buff
 	{
 		if (Operation == BuffOperation.Add) 
 		{
-			
+			return Value + value;
+		} 
+		else 
+		{
+			return Value * value;
 		}
 	}
+
+    public int CompareTo(Buff? other)
+    {
+        if (other == null)
+            return 1;
+        else
+            return (int)Operation.CompareTo((int)other.Operation);
+    }
 }
