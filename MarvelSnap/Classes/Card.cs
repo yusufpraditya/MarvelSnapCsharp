@@ -5,6 +5,7 @@ public abstract class Card
 	public int Id { get; set; }
 	public string Name { get; set; }
 	public string Description { get; set; }
+	public bool IsRevealed { get; set; }
 	
 	public Card(int id, string name, string description) 
 	{

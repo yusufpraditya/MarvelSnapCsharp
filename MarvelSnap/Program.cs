@@ -11,19 +11,22 @@ public class Program
 		CharacterCard? card;
 		
 		card = game.DrawCard(player1);
-		Console.WriteLine("Card id (shuffle): " + card.Id);
+		Console.WriteLine("Card id (shuffle): " + card?.Id);
 		
 		Console.WriteLine("Base power: " + card?.GetCurrentPower());
 		
 		card?.AddBuff(new Buff(4, BuffType.Power, BuffOperation.Add));
 		Console.WriteLine("Base + buff: " + card?.GetCurrentPower());
 		
-		AntMan? antman = (AntMan?) card;
+		// AntMan? antman = (AntMan?) card;
 		
-		game.PutCardInArena(player1, ArenaId.Arena1, antman);
-		game.PutCardInArena(player1, ArenaId.Arena1, antman);
+		// game.PutCardInArena(player1, ArenaId.Arena1, antman);
+		// game.PutCardInArena(player1, ArenaId.Arena1, antman);
 		
-		antman?.Ongoing(player1, game);
+		// antman?.Ongoing(player1, game);
+		
+		// Hawkeye? hawkeye = (Hawkeye?) card;
+		// game.OnCardRevealed(player1, hawkeye);
 		
 	}
 }

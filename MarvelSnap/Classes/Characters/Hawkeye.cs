@@ -7,8 +7,9 @@ public class Hawkeye : CharacterCard, IRevealable
 		
 	}
 
-    public void OnReveal(IPlayer player, MarvelSnapGame controller)
-    {
-        
-    }
+	public void OnReveal(IPlayer player, MarvelSnapGame controller)
+	{
+		IsRevealed = true;
+		
+	}
 }

@@ -2,5 +2,6 @@
 
 public enum CharacterType
 {
-	AntMan
+	AntMan,
+	Hawkeye
 }

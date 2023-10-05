@@ -16,6 +16,7 @@ public class AntMan : CharacterCard, IOngoing
 		ArenaId arenaId = controller.GetArenaId(player, this);
 		List<CharacterCard> arenaCards = controller.GetArenaCards(player, arenaId);
 		Console.WriteLine("Arena cards count: " + arenaCards.Count);
+
 		if (arenaCards.Count == 4) 
 		{
 			AddBuff(new Buff(_BuffValue, _BuffType, _BuffOperation));

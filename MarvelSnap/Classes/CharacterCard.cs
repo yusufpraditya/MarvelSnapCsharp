@@ -7,7 +7,6 @@ public class CharacterCard : Card
 	public int BasePower { get; set; }
 	public bool HasAbility { get; set; }
 	public CharacterType CharacterType { get; set; }
-	public bool IsRevealed { get; set; }
 	
 	public CharacterCard(CharacterType type, int id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description)
 	{

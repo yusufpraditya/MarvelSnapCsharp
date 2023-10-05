@@ -25,11 +25,11 @@ public class Buff : IComparable<Buff>
 		}
 	}
 
-    public int CompareTo(Buff? other)
-    {
-        if (other == null)
-            return 1;
-        else
-            return (int)Operation.CompareTo((int)other.Operation);
-    }
+	public int CompareTo(Buff? other)
+	{
+		if (other == null)
+			return 1;
+		else
+			return (int)Operation.CompareTo((int)other.Operation);
+	}
 }
