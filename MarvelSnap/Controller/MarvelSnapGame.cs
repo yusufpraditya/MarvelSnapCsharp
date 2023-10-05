@@ -5,11 +5,12 @@ public class MarvelSnapGame
 	private IPlayer _player1, _player2;
 	private List<LocationCard> _locations = new();
 	private Dictionary<IPlayer, Deck> _decks = new();
-	private Dictionary<ArenaId, Arena> _arenas = new();
+	private Dictionary<ArenaType, Arena> _arenas = new();
 	private Dictionary<IPlayer, bool> _playerTurn = new();
 	private Dictionary<IPlayer, bool> _playerHasPlayed = new();
 	private GameStatus _gameStatus = GameStatus.NotStarted;
-	// private Dictionary<IPlayer, CharacterCard> _playerCards = new();
+	private Dictionary<IPlayer, List<CharacterCard>> _playerCardsInHand = new();
+	private Dictionary<IPlayer, List<CharacterCard>> _playerCardsInArena = new();
 	public const int MaxCardInHand = 7;
 	public const int DefaultMaxTurn = 6;
 	public Action<int>? OnTurnChanged { get; set; }
@@ -27,14 +28,13 @@ public class MarvelSnapGame
 		_playerHasPlayed.Add(_player1, false);
 		_playerHasPlayed.Add(_player2, false);
 		
-		Arena arena1 = new(ArenaId.Arena1, _player1, _player2);
-		Arena arena2 = new(ArenaId.Arena2, _player1, _player2);
-		Arena arena3 = new(ArenaId.Arena3, _player1, _player2);
-		_arenas[ArenaId.Arena1] = arena1;
-		_arenas[ArenaId.Arena2] = arena2;
-		_arenas[ArenaId.Arena3] = arena3;
+		_playerCardsInHand.Add(_player1, new());
+		_playerCardsInHand.Add(_player2, new());
+		_playerCardsInArena.Add(_player1, new());
+		_playerCardsInArena.Add(_player2, new());
 		
-		// test
+		// test, will refactor later
+		
 		// AntMan antman1 = new(CharacterType.AntMan, 0, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		// AntMan antman2 = new(CharacterType.AntMan, 1, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		// AntMan antman3 = new(CharacterType.AntMan, 2, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
@@ -55,8 +55,15 @@ public class MarvelSnapGame
 		_locations.Add(location2);
 		_locations.Add(location3);
 		
-		Deck deck1 = new(_player1.Id, player1.Name);
-		Deck deck2 = new(_player2.Id, player2.Name);
+		Arena arena1 = new(ArenaType.Arena1, location1.Id, _player1, _player2) { Location = location1 };
+		Arena arena2 = new(ArenaType.Arena2, location2.Id, _player1, _player2) { Location = location2 };
+		Arena arena3 = new(ArenaType.Arena3, location3.Id, _player1, _player2) { Location = location3 };
+		_arenas[ArenaType.Arena1] = arena1;
+		_arenas[ArenaType.Arena2] = arena2;
+		_arenas[ArenaType.Arena3] = arena3;
+		
+		Deck deck1 = new(_player1.Id, _player1.Name);
+		Deck deck2 = new(_player2.Id, _player2.Name);
 		
 		_decks.Add(_player1, deck1);
 		_decks.Add(_player2, deck2);
@@ -76,8 +83,8 @@ public class MarvelSnapGame
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
 		
-		OnTurnChanged = NotifyTurnChanged;
-		OnCardRevealed = NotifyCardRevealed;
+		// OnTurnChanged = NotifyTurnChanged;
+		// OnCardRevealed = NotifyCardRevealed;
 	}
 	
 	public void SetGameStatus(GameStatus gameStatus) 
@@ -95,12 +102,12 @@ public class MarvelSnapGame
 		player.Name = name;
 	}
 	
-	private List<LocationCard> ShuffleLocation() 
-	{
+	// private List<LocationCard> ShuffleLocation() 
+	// {
 		
-	}
+	// }
 	
-	public void SetPlayerTurn(IPlayer player) 
+	public void SetPlayerTurn(IPlayer? player) 
 	{
 		if (player == _player1) 
 		{
@@ -114,7 +121,7 @@ public class MarvelSnapGame
 		}
 	}
 	
-	public bool HasPlayed()
+	public bool PlayersHavePlayed()
 	{
 		if (_playerHasPlayed[_player1] == true && _playerHasPlayed[_player2] == true) return true;
 		else return false;
@@ -126,9 +133,21 @@ public class MarvelSnapGame
 		else return _player2;
 	}
 	
+	public bool TryGetNextPlayer(out IPlayer? nextPlayer) 
+	{
+		nextPlayer = null;
+		if (!PlayersHavePlayed()) 
+		{
+			if (_playerHasPlayed[_player1]) nextPlayer = _player2;
+			else nextPlayer = _player1;
+			return true;
+		}
+		return false;
+	}
+	
 	public bool NextTurn() 
 	{
-		if (Turn <= MaxTurn && HasPlayed()) 
+		if (Turn <= MaxTurn && PlayersHavePlayed()) 
 		{
 			Turn += 1;
 			_playerHasPlayed[_player1] = false;
@@ -151,7 +170,12 @@ public class MarvelSnapGame
 		return _decks[player].Draw();
 	}
 	
-	public ArenaId GetArenaId(IPlayer player, CharacterCard card) 
+	public List<LocationCard> GetLocations() 
+	{
+		return _locations;
+	}
+	
+	public ArenaType GetArenaId(IPlayer player, CharacterCard card) 
 	{
 		foreach (var kvp in _arenas) 
 		{
@@ -160,28 +184,40 @@ public class MarvelSnapGame
 				return kvp.Key;
 			}
 		}
-		return ArenaId.Empty;
+		return ArenaType.Empty;
 	}
 	
-	public List<CharacterCard> GetArenaCards(IPlayer player, ArenaId id) 
+	public List<CharacterCard> GetArenaCards(IPlayer player, ArenaType type) 
 	{
-		return _arenas[id].GetCards(player);
+		return _arenas[type].GetCards(player);
 	}
 	
-	public bool PutCardInArena(IPlayer player, ArenaId id, CharacterCard card) 
+	public List<CharacterCard> GetArenaCards(IPlayer player, LocationCard location) 
 	{
-		if (!HasCardInArena(player, id, card)) 
+		foreach (var kvp in _arenas) 
 		{
-			bool success = _arenas[id].PutCard(player, card);
+			if (kvp.Value.Location == location) 
+			{
+				return _arenas[kvp.Key].GetCards(player);
+			}
+		}
+		return new List<CharacterCard>();
+	}
+	
+	public bool PutCardInArena(IPlayer player, ArenaType type, CharacterCard? card) 
+	{
+		if (!HasCardInArena(player, type, card)) 
+		{
+			bool success = _arenas[type].PutCard(player, card);
 			if (success) return true;
 			else return false;
 		}
 		return false;
 	}
 	
-	private bool HasCardInArena(IPlayer player, ArenaId id, CharacterCard card) 
+	private bool HasCardInArena(IPlayer player, ArenaType type, CharacterCard? card) 
 	{
-		if (_arenas[id].GetCards(player).Contains(card)) return true;
+		if (_arenas[type].GetCards(player).Contains(card)) return true;
 		else return false;
 	}
 	
@@ -214,6 +250,8 @@ public class MarvelSnapGame
 		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
+		
+		//OnTurnChanged?.Invoke(turn);
 		switch (turn) 
 		{
 			case 1:

@@ -5,11 +5,13 @@ public class Arena
 	Dictionary<IPlayer, List<CharacterCard>> _playerCardsInArena = new();
 	private Dictionary<IPlayer, bool> _isMovable = new();
 	public const int MaxCardsInArena = 4;
-	public ArenaId Id { get; set; }
+	public ArenaType ArenaType { get; set; }
+	public int Id { get; set; }
 	public LocationCard? Location { get; set;}
 	
-	public Arena(ArenaId id, IPlayer player1, IPlayer player2) 
+	public Arena(ArenaType type, int id, IPlayer player1, IPlayer player2) 
 	{
+		ArenaType = type;
 		Id = id;
 		_playerCardsInArena.Add(player1, new());
 		_playerCardsInArena.Add(player2, new());
@@ -20,7 +22,7 @@ public class Arena
 		Location = location;
 	}
 	
-	public bool PutCard(IPlayer player, CharacterCard card) 
+	public bool PutCard(IPlayer player, CharacterCard? card) 
 	{
 		if (_playerCardsInArena[player].Count < MaxCardsInArena) 
 		{

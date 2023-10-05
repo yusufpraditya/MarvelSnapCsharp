@@ -13,7 +13,7 @@ public class AntMan : CharacterCard, IOngoing
 
 	public void Ongoing(IPlayer player, MarvelSnapGame controller)
 	{
-		ArenaId arenaId = controller.GetArenaId(player, this);
+		ArenaType arenaId = controller.GetArenaId(player, this);
 		List<CharacterCard> arenaCards = controller.GetArenaCards(player, arenaId);
 		Console.WriteLine("Arena cards count: " + arenaCards.Count);
 

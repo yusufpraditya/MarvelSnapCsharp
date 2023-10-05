@@ -3,7 +3,7 @@
 public enum GameStatus
 {
 	NotStarted,
-	Ongoing,
-	OnReveal,
+	NewTurn,
+	PlayersTurn,
 	GameEnded
 }

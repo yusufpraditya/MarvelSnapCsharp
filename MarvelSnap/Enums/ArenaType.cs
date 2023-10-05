@@ -1,6 +1,6 @@
 ﻿namespace MarvelSnap;
 
-public enum ArenaId
+public enum ArenaType
 {
 	Arena1, 
 	Arena2,
