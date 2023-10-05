@@ -5,8 +5,8 @@ public class Program
 	static void Main() 
 	{
 		// test
-		Player player1 = new(1, "Yusuf");
-		Player player2 = new(2, "Praditya");
+		Player player1 = new(1);
+		Player player2 = new(2);
 		MarvelSnapGame game = new(player1, player2);
 		CharacterCard? card;
 		
@@ -28,5 +28,19 @@ public class Program
 		// Hawkeye? hawkeye = (Hawkeye?) card;
 		// game.OnCardRevealed(player1, hawkeye);
 		
+		while (game.GetGameStatus() != GameStatus.GameEnded) 
+		{
+			InputPlayerName(game, player1, player2);
+		}
+	}
+	
+	static void InputPlayerName(MarvelSnapGame game, IPlayer player1, IPlayer player2) 
+	{
+		Console.Write("Input name for player 1: ");
+		string? name = Console.ReadLine();
+		game.SetPlayerName(player1, name);
+		Console.Write("Input name for player 2: ");
+		name = Console.ReadLine();
+		game.SetPlayerName(player2, name);
 	}
 }

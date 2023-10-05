@@ -27,3 +27,4 @@ Below are location cards that are currently being developed:
 ### References
 1. https://marvelsnapzone.com/marvel-snap-cards-guide/
 2. https://marvelsnap.io/card-database/
+3. https://www.lesswrong.com/posts/hNa4JBgtuhb8tY3je/marvel-snap-phase-1

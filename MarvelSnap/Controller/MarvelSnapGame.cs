@@ -8,6 +8,7 @@ public class MarvelSnapGame
 	private Dictionary<ArenaId, Arena> _arenas = new();
 	private Dictionary<IPlayer, bool> _playerTurn = new();
 	private Dictionary<IPlayer, bool> _playerHasPlayed = new();
+	private GameStatus _gameStatus = GameStatus.NotStarted;
 	// private Dictionary<IPlayer, CharacterCard> _playerCards = new();
 	public const int MaxCardInHand = 7;
 	public const int DefaultMaxTurn = 6;
@@ -77,6 +78,21 @@ public class MarvelSnapGame
 		
 		OnTurnChanged = NotifyTurnChanged;
 		OnCardRevealed = NotifyCardRevealed;
+	}
+	
+	public void SetGameStatus(GameStatus gameStatus) 
+	{
+		_gameStatus = gameStatus;
+	}
+	
+	public GameStatus GetGameStatus() 
+	{
+		return _gameStatus;
+	}
+	
+	public void SetPlayerName(IPlayer player, string? name) 
+	{
+		player.Name = name;
 	}
 	
 	private List<LocationCard> ShuffleLocation() 
@@ -173,23 +189,29 @@ public class MarvelSnapGame
 	{
 		// Turn 1
 		// - Reveal Location 1
+		// - Player starts with 3 cards + draw 1 card, and 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		// Turn 2
 		// - Reveal Location 2
+		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		// Turn 3
 		// - Reveal Location 3
+		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		// Turn 4
+		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		// Turn 5
+		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		// Turn 6
+		// - Draw 1 card for each player and add 1 energy
 		// - Player can put card / take card / end turn
 		// - Activate Ongoing / On Reveal (if the card has the ability)
 		switch (turn) 
@@ -210,24 +232,15 @@ public class MarvelSnapGame
 		{
 			List<CharacterCard> player1Cards = GetArenaCards(_player1, kvp.Key);
 			List<CharacterCard> player2Cards = GetArenaCards(_player2, kvp.Key);
+			List<CharacterCard> playerCards = player1Cards.Concat(player2Cards).ToList();
 			
-			foreach (var card in player1Cards) 
+			foreach (var card in playerCards) 
 			{
 				switch (card.CharacterType) 
 				{
 					case CharacterType.AntMan:
 						AntMan antman = (AntMan) card;
 						antman.Ongoing(_player1, this);
-						break;
-				}
-			}
-			foreach (var card in player2Cards) 
-			{
-				switch (card.CharacterType) 
-				{
-					case CharacterType.AntMan:
-						AntMan antman = (AntMan) card;
-						antman.Ongoing(_player2, this);
 						break;
 				}
 			}

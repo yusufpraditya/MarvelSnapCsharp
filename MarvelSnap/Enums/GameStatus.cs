@@ -2,5 +2,8 @@
 
 public enum GameStatus
 {
-    
+	NotStarted,
+	Ongoing,
+	OnReveal,
+	GameEnded
 }
