@@ -9,6 +9,9 @@ public class Program
 		Player player1 = new(1);
 		Player player2 = new(2);
 		MarvelSnapGame game = new(player1, player2);
+		
+		game.OnCardRevealed += CardRevealed;
+		
 		Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand = new() 
 		{
 			{ player1, new() },
@@ -50,6 +53,7 @@ public class Program
 						if (status) game.SetPlayerTurn(nextPlayer);
 						if (game.PlayersHavePlayed()) 
 						{
+							//game.NotifyCardRevealed()
 							game.SetGameStatus(GameStatus.NewTurn);
 							game.NextTurn();
 						}
@@ -60,6 +64,11 @@ public class Program
 			if (game.Turn > game.MaxTurn) game.SetGameStatus(GameStatus.GameEnded);
 		}
 		game.SetGameStatus(GameStatus.NotStarted);
+	}
+	
+	static void CardRevealed(IPlayer player, CharacterCard card) 
+	{
+		Console.WriteLine(player.Name + " revealed " + card.Name + ".");
 	}
 	
 	static void InputPlayerName(MarvelSnapGame game, IPlayer player1, IPlayer player2) 

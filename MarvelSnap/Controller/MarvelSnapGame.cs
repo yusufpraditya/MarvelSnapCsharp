@@ -311,12 +311,18 @@ public class MarvelSnapGame
 	
 	public void NotifyCardRevealed(IPlayer player, CharacterCard card) 
 	{
-		switch (card.CharacterType) 
-		{
-			case CharacterType.Hawkeye:
-				Hawkeye hawkeye = (Hawkeye) card;
-				hawkeye.OnReveal(player, this);
-				break;
-		}
-	}
+		// invoke
+		OnCardRevealed?.Invoke(player, card);
+	// 	switch (card.CharacterType) 
+	// 	{
+	// 		case CharacterType.Hawkeye:
+	// 			Hawkeye hawkeye = (Hawkeye) card;
+	// 			hawkeye.OnReveal(player, this);
+	// 			break;
+	// 	}
+	// 	if (card is IOngoing ongoing) 
+	// 	{
+	// 		ongoing.Ongoing(player, this);
+	// 	}
+	// }
 }

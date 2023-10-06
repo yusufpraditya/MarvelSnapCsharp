@@ -15,4 +15,14 @@ public class Player : IPlayer
 		Id = id;
 		Name = name;
 	}
+
+	public override int GetHashCode()
+	{
+		return Id;
+	}
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Player player && player.Id == Id;
+    }
 }
