@@ -4,6 +4,7 @@ public class MarvelSnapGame
 {
 	private IPlayer _player1, _player2;
 	private List<LocationCard> _locations = new();
+	private List<IPlayer> _players = new();
 	private Dictionary<IPlayer, Deck> _decks = new();
 	private Dictionary<ArenaType, Arena> _arenas = new();
 	private Dictionary<IPlayer, bool> _playerTurn = new();
@@ -14,7 +15,7 @@ public class MarvelSnapGame
 	public const int MaxCardInHand = 7;
 	public const int DefaultMaxTurn = 6;
 	public Action<int>? OnTurnChanged { get; set; }
-	public Action<IPlayer, CharacterCard> OnCardRevealed { get; set; }
+	public Action<IPlayer, CharacterCard>? OnCardRevealed { get; set; }
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
 	
@@ -22,6 +23,9 @@ public class MarvelSnapGame
 	{
 		_player1 = player1;
 		_player2 = player2;
+		
+		_players.Add(_player1);
+		_players.Add(_player2);
 		
 		_playerTurn.Add(_player1, true);
 		_playerTurn.Add(_player2, false);
@@ -35,11 +39,11 @@ public class MarvelSnapGame
 		
 		// test, will refactor later
 		
-		// AntMan antman1 = new(CharacterType.AntMan, 0, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		// AntMan antman2 = new(CharacterType.AntMan, 1, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		// AntMan antman3 = new(CharacterType.AntMan, 2, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		// AntMan antman4 = new(CharacterType.AntMan, 3, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		// AntMan antman5 = new(CharacterType.AntMan, 4, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman1 = new(CharacterType.AntMan, 0, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman2 = new(CharacterType.AntMan, 1, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman3 = new(CharacterType.AntMan, 2, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman4 = new(CharacterType.AntMan, 3, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman5 = new(CharacterType.AntMan, 4, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		
 		Hawkeye hawkeye1 = new(CharacterType.Hawkeye, 0, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
 		Hawkeye hawkeye2 = new(CharacterType.Hawkeye, 1, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
@@ -74,11 +78,11 @@ public class MarvelSnapGame
 		_decks[_player1].Add(hawkeye4);
 		_decks[_player1].Add(hawkeye5);
 		
-		_decks[_player2].Add(hawkeye1);
-		_decks[_player2].Add(hawkeye2);
-		_decks[_player2].Add(hawkeye3);
-		_decks[_player2].Add(hawkeye4);
-		_decks[_player2].Add(hawkeye5);
+		_decks[_player2].Add(antman1);
+		_decks[_player2].Add(antman2);
+		_decks[_player2].Add(antman3);
+		_decks[_player2].Add(antman4);
+		_decks[_player2].Add(antman5);
 		
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
@@ -100,6 +104,11 @@ public class MarvelSnapGame
 	public void SetPlayerName(IPlayer player, string? name) 
 	{
 		player.Name = name;
+	}
+
+	public List<IPlayer> GetPlayers() 
+	{
+		return _players;
 	}
 	
 	// private List<LocationCard> ShuffleLocation() 
@@ -202,6 +211,21 @@ public class MarvelSnapGame
 			}
 		}
 		return new List<CharacterCard>();
+	}
+	
+	public Dictionary<IPlayer, List<CharacterCard>> GetArenaCardsForEachPlayer() 
+	{
+		List<LocationCard> locations = GetLocations();
+		foreach (var player in _players) 
+		{
+			List<CharacterCard> arenaCards = new();
+			foreach (var location in locations) 
+			{
+				arenaCards = arenaCards.Concat(GetArenaCards(player, location)).ToList();
+			}
+			_playerCardsInArena[player] = arenaCards;
+		}
+		return _playerCardsInArena;
 	}
 	
 	public bool PutCardInArena(IPlayer player, ArenaType type, CharacterCard? card) 

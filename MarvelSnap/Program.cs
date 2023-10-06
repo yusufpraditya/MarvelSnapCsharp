@@ -8,35 +8,12 @@ public class Program
 		
 		Player player1 = new(1);
 		Player player2 = new(2);
-		List<IPlayer> players = new() {player1, player2};
 		MarvelSnapGame game = new(player1, player2);
 		Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand = new() 
 		{
 			{ player1, new() },
 			{ player2, new() }
 		};
-		Dictionary<IPlayer, List<CharacterCard>> playerCardsInArena = new() 
-		{
-			{ player1, new() },
-			{ player2, new() }
-		};
-		// card = game.DrawCard(player1);
-		// Console.WriteLine("Card id (shuffle): " + card?.Id);
-		
-		// Console.WriteLine("Base power: " + card?.GetCurrentPower());
-		
-		// card?.AddBuff(new Buff(4, BuffType.Power, BuffOperation.Add));
-		// Console.WriteLine("Base + buff: " + card?.GetCurrentPower());
-		
-		// AntMan? antman = (AntMan?) card;
-		
-		// game.PutCardInArena(player1, ArenaId.Arena1, antman);
-		// game.PutCardInArena(player1, ArenaId.Arena1, antman);
-		
-		// antman?.Ongoing(player1, game);
-		
-		// Hawkeye? hawkeye = (Hawkeye?) card;
-		// game.OnCardRevealed(player1, hawkeye);
 		
 		InputPlayerName(game, player1, player2);
 		game.SetGameStatus(GameStatus.NewTurn);
@@ -62,7 +39,7 @@ public class Program
 				switch (action) 
 				{
 					case 1:
-						DisplayPutCard(game, player, players, playerCardsInArena, playerCardsInHand);
+						DisplayPutCard(game, player, playerCardsInHand);
 						break;
 					case 2:
 						DisplayTakeCard(); // todo
@@ -82,6 +59,7 @@ public class Program
 			
 			if (game.Turn > game.MaxTurn) game.SetGameStatus(GameStatus.GameEnded);
 		}
+		game.SetGameStatus(GameStatus.NotStarted);
 	}
 	
 	static void InputPlayerName(MarvelSnapGame game, IPlayer player1, IPlayer player2) 
@@ -114,38 +92,33 @@ public class Program
 		else 
 		{
 			Console.WriteLine("Please input valid number (1-3).");
+			Thread.Sleep(1000);
 		}
 		Console.Clear();
 	}
 	
-	static void DisplayPutCard(MarvelSnapGame game, IPlayer player, List<IPlayer> players, Dictionary<IPlayer, List<CharacterCard>> playerCardsInArena, Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand) 
+	static void DisplayPutCard(MarvelSnapGame game, IPlayer player, Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand) 
 	{
 		List<LocationCard> locations = game.GetLocations();
-		
-		foreach (var p in players) 
-		{
-			List<CharacterCard> arenaCards = new();
-			foreach (var location in locations) 
-			{
-				arenaCards.Concat(game.GetArenaCards(player, location)).ToList();
-			}
-			playerCardsInArena[p] = arenaCards;
-		}
+		Dictionary<IPlayer, List<CharacterCard>> playerCardsInArena = game.GetArenaCardsForEachPlayer();
 		
 		Console.WriteLine("Following are current cards in each location.");
-		Console.WriteLine(locations[0].Name);
-		foreach (var kvp in playerCardsInArena) 
+		foreach (var location in locations) 
 		{
-			Console.WriteLine(kvp.Key.Name);
-			if (kvp.Value.Count == 0) Console.WriteLine("(Empty)");
-			else 
+			Console.WriteLine(location.Name);
+			foreach (var kvp in playerCardsInArena) 
 			{
-				foreach (var card in kvp.Value) 
-				{
-					Console.WriteLine(card.Name);
-				}	
+				if (playerCardsInArena[kvp.Key].Count == 0) Console.WriteLine("(Empty)");
+					else 
+					{
+						foreach (var card in playerCardsInArena[kvp.Key]) 
+						{
+							Console.WriteLine(card.Name);
+						}
+				}
 			}
 		}
+
 		Console.WriteLine();
 		Console.WriteLine("Following are your current cards in your hand.");
 		foreach (var card in playerCardsInHand[player]) 
