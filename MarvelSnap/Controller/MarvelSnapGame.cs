@@ -2,24 +2,27 @@
 
 public class MarvelSnapGame
 {
-	private IPlayer _player1, _player2;
+	private Player _player1, _player2;
 	private List<LocationCard> _locations = new();
-	private List<IPlayer> _players = new();
-	private Dictionary<IPlayer, Deck> _decks = new();
+	private List<Player> _players = new();
+	private Dictionary<Player, Deck> _decks = new();
 	private Dictionary<ArenaType, Arena> _arenas = new();
-	private Dictionary<IPlayer, bool> _playerTurn = new();
-	private Dictionary<IPlayer, bool> _playerHasPlayed = new();
+	private Dictionary<Player, bool> _playerTurn = new();
+	private Dictionary<Player, bool> _playerHasPlayed = new();
 	private GameStatus _gameStatus = GameStatus.NotStarted;
-	private Dictionary<IPlayer, List<CharacterCard>> _playerCardsInHand = new();
-	private Dictionary<IPlayer, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<Player, List<CharacterCard>> _playerCardsInHand = new();
+	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<int, List<FutureTask>> _futureTasks = new();
 	public const int MaxCardInHand = 7;
 	public const int DefaultMaxTurn = 6;
 	public Action<int>? OnTurnChanged { get; set; }
-	public Action<IPlayer, CharacterCard>? OnCardRevealed { get; set; }
+	public Action<Player, Card>? OnCardRevealed { get; set; }
+	public Action<Player, Card>? OnCardPowerChanged { get; set; }
+	public Action<Player>? OnGameEnded { get; set; }
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
 	
-	public MarvelSnapGame(IPlayer player1, IPlayer player2) 
+	public MarvelSnapGame(Player player1, Player player2) 
 	{
 		_player1 = player1;
 		_player2 = player2;
@@ -39,29 +42,29 @@ public class MarvelSnapGame
 		
 		// test, will refactor later
 		
-		AntMan antman1 = new(CharacterType.AntMan, 0, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman2 = new(CharacterType.AntMan, 1, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman3 = new(CharacterType.AntMan, 2, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman4 = new(CharacterType.AntMan, 3, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman5 = new(CharacterType.AntMan, 4, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman1 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman2 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman3 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman4 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		AntMan antman5 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		
-		Hawkeye hawkeye1 = new(CharacterType.Hawkeye, 0, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye2 = new(CharacterType.Hawkeye, 1, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye3 = new(CharacterType.Hawkeye, 2, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye4 = new(CharacterType.Hawkeye, 3, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye5 = new(CharacterType.Hawkeye, 4, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Hawkeye hawkeye1 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Hawkeye hawkeye2 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Hawkeye hawkeye3 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Hawkeye hawkeye4 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Hawkeye hawkeye5 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
 		
-		LocationCard location1 = new(LocationType.OnslaughtsCitadel, 0, "Onslaught's Citadel", "Ongoing effects here are doubled.");
-		LocationCard location2 = new(LocationType.DreamDimension, 1, "Dream Dimension", "On turn 5, cards cost 1 more.");
-		LocationCard location3 = new(LocationType.Kyln, 2, "Kyln", "You can't play cards here after turn 4.");
+		LocationCard location1 = new(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
+		LocationCard location2 = new(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
+		LocationCard location3 = new(LocationType.Kyln, "Kyln", "You can't play cards here after turn 4.");
 		
 		_locations.Add(location1);
 		_locations.Add(location2);
 		_locations.Add(location3);
 		
-		Arena arena1 = new(ArenaType.Arena1, location1.Id, _player1, _player2) { Location = location1 };
-		Arena arena2 = new(ArenaType.Arena2, location2.Id, _player1, _player2) { Location = location2 };
-		Arena arena3 = new(ArenaType.Arena3, location3.Id, _player1, _player2) { Location = location3 };
+		Arena arena1 = new(ArenaType.Arena1, _player1, _player2) { Location = location1 };
+		Arena arena2 = new(ArenaType.Arena2, _player1, _player2) { Location = location2 };
+		Arena arena3 = new(ArenaType.Arena3, _player1, _player2) { Location = location3 };
 		_arenas[ArenaType.Arena1] = arena1;
 		_arenas[ArenaType.Arena2] = arena2;
 		_arenas[ArenaType.Arena3] = arena3;
@@ -86,10 +89,12 @@ public class MarvelSnapGame
 		
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
-		
-		// OnTurnChanged = NotifyTurnChanged;
-		// OnCardRevealed = NotifyCardRevealed;
 	}
+	
+	// public bool SetDeck(Player player, Deck deck) 
+	// {
+		
+	// }
 	
 	public void SetGameStatus(GameStatus gameStatus) 
 	{
@@ -101,12 +106,12 @@ public class MarvelSnapGame
 		return _gameStatus;
 	}
 	
-	public void SetPlayerName(IPlayer player, string? name) 
+	public void SetPlayerName(Player player, string? name) 
 	{
 		player.Name = name;
 	}
 
-	public List<IPlayer> GetPlayers() 
+	public List<Player> GetPlayers() 
 	{
 		return _players;
 	}
@@ -116,7 +121,7 @@ public class MarvelSnapGame
 		
 	// }
 	
-	public void SetPlayerTurn(IPlayer? player) 
+	public void SetPlayerTurn(Player? player) 
 	{
 		if (player == _player1) 
 		{
@@ -136,13 +141,13 @@ public class MarvelSnapGame
 		else return false;
 	}
 	
-	public IPlayer GetPlayerTurn() 
+	public Player GetPlayerTurn() 
 	{
 		if (_playerTurn[_player1] == true) return _player1;
 		else return _player2;
 	}
 	
-	public bool TryGetNextPlayer(out IPlayer? nextPlayer) 
+	public bool TryGetNextPlayer(out Player? nextPlayer) 
 	{
 		nextPlayer = null;
 		if (!PlayersHavePlayed()) 
@@ -169,14 +174,113 @@ public class MarvelSnapGame
 		}
 	}
 	
-	public void EndTurn(IPlayer player) 
+	public void EndTurn(Player player) 
 	{
 		_playerHasPlayed[player] = true;
+		if (PlayersHavePlayed()) 
+		{
+			List<CharacterCard> cards = new();
+			foreach (var p in _players) 
+			{
+				foreach (var kvp in _arenas) 
+				{
+					cards = cards.Concat(_arenas[kvp.Key].GetCards(p)).ToList();
+				}
+			}
+			
+			Console.WriteLine("Count: " + cards.Count);
+			Thread.Sleep(1000);
+			
+			foreach (var card in cards) 
+			{
+				Console.WriteLine("YOooo");
+				Console.WriteLine(card.Name);
+				Thread.Sleep(1000);
+				
+				card.Ongoing(player, this);
+				card.OnReveal(player, this);
+				card.OnDestroyed(player, this);
+				card.OnMoved(player, this);
+				foreach (var kvp in _futureTasks) 
+				{
+					foreach (var task in _futureTasks[kvp.Key]) 
+					{
+						bool status = task.Run(Turn);
+						if (status) _futureTasks.Remove(kvp.Key);
+					}
+				}
+			}
+		}
+		
 	}
 	
-	public CharacterCard? DrawCard(IPlayer player) 
+	public bool DrawCard(Player player) 
 	{
-		return _decks[player].Draw();
+		CharacterCard? cardToDraw = _decks[player].Draw();
+		if (cardToDraw != null) 
+		{
+			AddCardInHand(player, cardToDraw);
+			return true;
+		}
+		return false;
+	}
+	
+	public bool AddCardInHand(Player player, CharacterCard card) 
+	{
+		try 
+		{
+			_playerCardsInHand[player].Add(card);
+			return true;
+		}
+		catch (Exception)
+		{
+			return false;
+		}
+	}
+	
+	public bool RemoveCardInHand(Player player, CharacterCard card) 
+	{
+		try 
+		{
+			_playerCardsInHand[player].Remove(card);
+			return true;
+		}
+		catch (Exception) 
+		{
+			return false;
+		}
+	}
+	
+	public bool HasCardInHand(Player player, CharacterCard card) 
+	{
+		if (_playerCardsInHand[player].Contains(card)) return true;
+		else return false;
+	}
+	
+	public List<CharacterCard> GetHandCards(Player player) 
+	{
+		return _playerCardsInHand[player];
+	}
+	
+	public Dictionary<Player, List<CharacterCard>> GetHandCardsForEachPlayer() 
+	{
+		return _playerCardsInHand;
+	}
+ 	
+	public void AddFutureTask(int ownerId, FutureTask task) 
+	{
+		bool status = _futureTasks.TryAdd(ownerId, new List<FutureTask>(){ task });
+		if (!status) _futureTasks[ownerId].Add(task);
+	}
+	
+	// public bool RemoveFutureTask(int ownerId, int taskId) 
+	// {
+		
+	// }
+	
+	public int GetLatestTaskId() 
+	{
+		return _futureTasks.Count - 1;
 	}
 	
 	public List<LocationCard> GetLocations() 
@@ -184,24 +288,29 @@ public class MarvelSnapGame
 		return _locations;
 	}
 	
-	public ArenaType GetArenaId(IPlayer player, CharacterCard card) 
+	public ArenaType? GetArenaId(Player player, CharacterCard card) 
 	{
 		foreach (var kvp in _arenas) 
 		{
+			Console.WriteLine(kvp.Value.Location.Name);
+			Thread.Sleep(1000);
+			
 			if (kvp.Value.GetCards(player).Contains(card)) 
 			{
 				return kvp.Key;
 			}
 		}
-		return ArenaType.Empty;
+		return null;
 	}
 	
-	public List<CharacterCard> GetArenaCards(IPlayer player, ArenaType type) 
+	public List<CharacterCard> GetArenaCards(Player player, ArenaType type) 
 	{
+		Console.WriteLine(type);
+		Thread.Sleep(1000);
 		return _arenas[type].GetCards(player);
 	}
 	
-	public List<CharacterCard> GetArenaCards(IPlayer player, LocationCard location) 
+	public List<CharacterCard> GetArenaCards(Player player, LocationCard location) 
 	{
 		foreach (var kvp in _arenas) 
 		{
@@ -213,7 +322,7 @@ public class MarvelSnapGame
 		return new List<CharacterCard>();
 	}
 	
-	public Dictionary<IPlayer, List<CharacterCard>> GetArenaCardsForEachPlayer() 
+	public Dictionary<Player, List<CharacterCard>> GetArenaCardsForEachPlayer() 
 	{
 		List<LocationCard> locations = GetLocations();
 		foreach (var player in _players) 
@@ -228,101 +337,36 @@ public class MarvelSnapGame
 		return _playerCardsInArena;
 	}
 	
-	public bool PutCardInArena(IPlayer player, ArenaType type, CharacterCard? card) 
+	public bool PutCardInArena(Player player, ArenaType type, CharacterCard card) 
 	{
 		if (!HasCardInArena(player, type, card)) 
 		{
 			bool success = _arenas[type].PutCard(player, card);
-			if (success) return true;
+			if (success) 
+			{
+				RemoveCardInHand(player, card);
+				return true;
+			}
 			else return false;
 		}
 		return false;
 	}
 	
-	private bool HasCardInArena(IPlayer player, ArenaType type, CharacterCard? card) 
+	private bool HasCardInArena(Player player, ArenaType type, CharacterCard card) 
 	{
+		Console.WriteLine("Type: " + type);
+		Thread.Sleep(1000);
 		if (_arenas[type].GetCards(player).Contains(card)) return true;
 		else return false;
 	}
 	
-	public void NotifyTurnChanged(int turn) 
+	public void NotifyCardRevealed(Player player, Card card) 
 	{
-		// Turn 1
-		// - Reveal Location 1
-		// - Player starts with 3 cards + draw 1 card, and 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		// Turn 2
-		// - Reveal Location 2
-		// - Draw 1 card for each player and add 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		// Turn 3
-		// - Reveal Location 3
-		// - Draw 1 card for each player and add 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		// Turn 4
-		// - Draw 1 card for each player and add 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		// Turn 5
-		// - Draw 1 card for each player and add 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		// Turn 6
-		// - Draw 1 card for each player and add 1 energy
-		// - Player can put card / take card / end turn
-		// - Activate Ongoing / On Reveal (if the card has the ability)
-		
-		//OnTurnChanged?.Invoke(turn);
-		switch (turn) 
-		{
-			case 1:
-				_locations[0].IsRevealed = true;
-				break;
-			case 2:
-				_locations[1].IsRevealed = true;
-				break;
-			case 3:
-				_locations[2].IsRevealed = true;
-				break;
-				
-		}
-		
-		foreach (var kvp in _arenas) 
-		{
-			List<CharacterCard> player1Cards = GetArenaCards(_player1, kvp.Key);
-			List<CharacterCard> player2Cards = GetArenaCards(_player2, kvp.Key);
-			List<CharacterCard> playerCards = player1Cards.Concat(player2Cards).ToList();
-			
-			foreach (var card in playerCards) 
-			{
-				switch (card.CharacterType) 
-				{
-					case CharacterType.AntMan:
-						AntMan antman = (AntMan) card;
-						antman.Ongoing(_player1, this);
-						break;
-				}
-			}
-		}
+		OnCardRevealed?.Invoke(player, card);
 	}
 	
-	public void NotifyCardRevealed(IPlayer player, CharacterCard card) 
+	public void NotifyPowerChanged(Player player, Card card) 
 	{
-		// invoke
-		OnCardRevealed?.Invoke(player, card);
-	// 	switch (card.CharacterType) 
-	// 	{
-	// 		case CharacterType.Hawkeye:
-	// 			Hawkeye hawkeye = (Hawkeye) card;
-	// 			hawkeye.OnReveal(player, this);
-	// 			break;
-	// 	}
-	// 	if (card is IOngoing ongoing) 
-	// 	{
-	// 		ongoing.Ongoing(player, this);
-	// 	}
-	// }
+		OnCardPowerChanged?.Invoke(player, card);
+	}
 }

@@ -11,12 +11,7 @@ public class Program
 		MarvelSnapGame game = new(player1, player2);
 		
 		game.OnCardRevealed += CardRevealed;
-		
-		Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand = new() 
-		{
-			{ player1, new() },
-			{ player2, new() }
-		};
+		game.OnCardPowerChanged += CardPowerChanged;
 		
 		InputPlayerName(game, player1, player2);
 		game.SetGameStatus(GameStatus.NewTurn);
@@ -25,38 +20,34 @@ public class Program
 		{
 			if (game.GetGameStatus() == GameStatus.NewTurn) 
 			{
-				playerCardsInHand[player1].Add(game.DrawCard(player1));
-				playerCardsInHand[player2].Add(game.DrawCard(player2));
-				playerCardsInHand[player1].Add(game.DrawCard(player1));
-				playerCardsInHand[player2].Add(game.DrawCard(player2));
-				playerCardsInHand[player1].Add(game.DrawCard(player1));
-				playerCardsInHand[player2].Add(game.DrawCard(player2));
+				game.DrawCard(player1);
+				game.DrawCard(player1);
+				game.DrawCard(player1);
+				game.DrawCard(player2);
+				game.DrawCard(player2);
+				game.DrawCard(player2);
 				game.SetGameStatus(GameStatus.PlayersTurn);
 			}
 			
 			if (game.GetGameStatus() == GameStatus.PlayersTurn) 
 			{
 				Console.WriteLine("Turn: " + game.Turn);
-				IPlayer player = game.GetPlayerTurn();
+				Player player = game.GetPlayerTurn();
 				ChooseAction(out int action);
 				switch (action) 
 				{
 					case 1:
-						DisplayPutCard(game, player, playerCardsInHand);
+						DisplayPutCard(game, player);
 						break;
 					case 2:
 						DisplayTakeCard(); // todo
 						break;
 					case 3:
 						game.EndTurn(player);
-						bool status = game.TryGetNextPlayer(out IPlayer? nextPlayer);
+						bool status = game.TryGetNextPlayer(out Player? nextPlayer);
 						if (status) game.SetPlayerTurn(nextPlayer);
-						if (game.PlayersHavePlayed()) 
-						{
-							//game.NotifyCardRevealed()
-							game.SetGameStatus(GameStatus.NewTurn);
-							game.NextTurn();
-						}
+						bool canNextTurn = game.NextTurn();
+						if (canNextTurn) game.SetGameStatus(GameStatus.NewTurn);
 						break;
 				}
 			}
@@ -66,12 +57,19 @@ public class Program
 		game.SetGameStatus(GameStatus.NotStarted);
 	}
 	
-	static void CardRevealed(IPlayer player, CharacterCard card) 
+	static void CardRevealed(Player player, Card card) 
 	{
 		Console.WriteLine(player.Name + " revealed " + card.Name + ".");
+		Thread.Sleep(1000);
 	}
 	
-	static void InputPlayerName(MarvelSnapGame game, IPlayer player1, IPlayer player2) 
+	static void CardPowerChanged(Player player, Card card) 
+	{
+		Console.WriteLine(card.Name + " power has changed.");
+		Thread.Sleep(1000);
+	}
+	
+	static void InputPlayerName(MarvelSnapGame game, Player player1, Player player2) 
 	{
 		Console.Clear();
 		Console.WriteLine("Welcome to Marvel Snap game! Please input your name first.");
@@ -106,31 +104,31 @@ public class Program
 		Console.Clear();
 	}
 	
-	static void DisplayPutCard(MarvelSnapGame game, IPlayer player, Dictionary<IPlayer, List<CharacterCard?>> playerCardsInHand) 
+	static void DisplayPutCard(MarvelSnapGame game, Player player) 
 	{
 		List<LocationCard> locations = game.GetLocations();
-		Dictionary<IPlayer, List<CharacterCard>> playerCardsInArena = game.GetArenaCardsForEachPlayer();
+		Dictionary<Player, List<CharacterCard>> playerCardsInArena = game.GetArenaCardsForEachPlayer();
 		
 		Console.WriteLine("Following are current cards in each location.");
+		
 		foreach (var location in locations) 
 		{
 			Console.WriteLine(location.Name);
-			foreach (var kvp in playerCardsInArena) 
+			List<CharacterCard> arenaCards = game.GetArenaCards(player, location);
+			if (arenaCards.Count == 0) Console.WriteLine("(Empty)");
+			else 
 			{
-				if (playerCardsInArena[kvp.Key].Count == 0) Console.WriteLine("(Empty)");
-					else 
-					{
-						foreach (var card in playerCardsInArena[kvp.Key]) 
-						{
-							Console.WriteLine(card.Name);
-						}
+				foreach (var card in arenaCards) 
+				{
+					Console.WriteLine(card.Name);
 				}
 			}
 		}
 
 		Console.WriteLine();
 		Console.WriteLine("Following are your current cards in your hand.");
-		foreach (var card in playerCardsInHand[player]) 
+		List<CharacterCard> handCards = game.GetHandCards(player);
+		foreach (var card in handCards) 
 		{
 			Console.WriteLine(card?.Name);
 		}
@@ -147,7 +145,9 @@ public class Program
 			bool status2 = int.TryParse(Console.ReadLine(), out int input2);
 			if (status2 && input2 >= 1 && input2 <= 3) 
 			{
-				game.PutCardInArena(player, (ArenaType) locations[input2 - 1].Id, playerCardsInHand[player][input - 1]);
+				Console.WriteLine("Arena " + (ArenaType) (input2-1));
+				Thread.Sleep(1000);
+				game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
 			}
 		}
 		else 

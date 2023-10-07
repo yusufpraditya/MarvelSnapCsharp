@@ -2,7 +2,7 @@
 
 public enum LocationType
 {
-	OnslaughtsCitadel,
+	OnslaughtsCitadel = 1000,
 	DreamDimension,
 	Kyln
 }

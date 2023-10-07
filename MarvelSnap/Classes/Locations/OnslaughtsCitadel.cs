@@ -2,8 +2,7 @@
 
 public class OnslaughtsCitadel : LocationCard
 {
-	public OnslaughtsCitadel(LocationType type, int id, string name, string description) : base(type, id, name, description)
+	public OnslaughtsCitadel(LocationType id, string name, string description) : base(id, name, description)
 	{
-		
 	}
 }

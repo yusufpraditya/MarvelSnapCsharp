@@ -2,27 +2,32 @@
 
 public class CharacterCard : Card
 {
-	private List<Buff> _buffs = new();
+	private Dictionary<int, List<Buff>> _buffs = new();
 	public int BaseEnergyCost { get; set; }
 	public int BasePower { get; set; }
 	public bool HasAbility { get; set; }
-	public CharacterType CharacterType { get; set; }
 	
-	public CharacterCard(CharacterType type, int id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description)
+	public CharacterCard(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base((int)id, name, description)
 	{
 		BaseEnergyCost = baseEnergyCost;
 		BasePower = basePower;
 		HasAbility = hasAbility;
-		CharacterType = type;
 	}
 	
-	public int GetCurrentPower() 
+	public CharacterCard(int id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description)
 	{
-		if (_buffs.Count > 0) 
+		BaseEnergyCost = baseEnergyCost;
+		BasePower = basePower;
+		HasAbility = hasAbility;
+	}
+	
+	public int GetCurrentPower(int ownerId) 
+	{
+		if (_buffs[ownerId].Count > 0) 
 		{
-			_buffs.Sort();
+			_buffs[ownerId].Sort();
 			int currentPower = 0;
-			foreach (var buff in _buffs) 
+			foreach (var buff in _buffs[ownerId]) 
 			{
 				currentPower += buff.Apply(BasePower);
 			}
@@ -31,16 +36,41 @@ public class CharacterCard : Card
 		else return BasePower;
 	}
 	
-	public void AddBuff(Buff buff) 
+	public void AddBuff(int ownerId, Buff buff) 
 	{
-		_buffs.Add(buff);
+		bool status = _buffs.TryAdd(ownerId, new List<Buff>() {buff});
+		if (!status) _buffs[ownerId].Add(buff);
 	}
 	
-	// public void RemoveBuff(int buffId) 
-	// {
-	// 	foreach (var buff in _buffs) 
-	// 	{
-	// 		if (buff.Id == buffId) _buffs.Remove(buff);
-	// 	}
-	// }
+	public void RemoveBuff(int ownerId, int buffId)
+	{
+		foreach (var kvp in _buffs) 
+		{
+			if (kvp.Key == ownerId) 
+			{
+				foreach (var buff in kvp.Value) 
+				{
+					if (buff.Id == buffId) _buffs[kvp.Key].Remove(buff);
+				}
+			}
+		}
+	}
+
+	public override void OnReveal(Player player, MarvelSnapGame controller)
+	{
+		Console.WriteLine("punten");
+		Thread.Sleep(1000);
+	}
+
+	public override void Ongoing(Player player, MarvelSnapGame controller)
+	{
+	}
+
+	public override void OnDestroyed(Player player, MarvelSnapGame controller)
+	{
+	}
+
+	public override void OnMoved(Player player, MarvelSnapGame controller)
+	{
+	}
 }

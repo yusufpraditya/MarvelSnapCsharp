@@ -2,16 +2,14 @@
 
 public class Arena
 {
-	Dictionary<IPlayer, List<CharacterCard>> _playerCardsInArena = new();
-	private Dictionary<IPlayer, bool> _isMovable = new();
+	Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private bool _isAvailable = true;
 	public const int MaxCardsInArena = 4;
-	public ArenaType ArenaType { get; set; }
-	public int Id { get; set; }
+	public ArenaType Id { get; set; }
 	public LocationCard? Location { get; set;}
 	
-	public Arena(ArenaType type, int id, IPlayer player1, IPlayer player2) 
+	public Arena(ArenaType id, Player player1, Player player2) 
 	{
-		ArenaType = type;
 		Id = id;
 		_playerCardsInArena.Add(player1, new());
 		_playerCardsInArena.Add(player2, new());
@@ -22,7 +20,7 @@ public class Arena
 		Location = location;
 	}
 	
-	public bool PutCard(IPlayer player, CharacterCard? card) 
+	public bool PutCard(Player player, CharacterCard? card) 
 	{
 		if (_playerCardsInArena[player].Count < MaxCardsInArena) 
 		{
@@ -32,7 +30,7 @@ public class Arena
 		return false;
 	}
 	
-	public bool TakeCard(IPlayer player, CharacterCard card) 
+	public bool TakeCard(Player player, CharacterCard card) 
 	{
 		if (_playerCardsInArena[player].Count > 0) 
 		{
@@ -42,34 +40,27 @@ public class Arena
 		return false;
 	}
 	
-	public List<CharacterCard> GetCards(IPlayer player) 
+	public List<CharacterCard> GetCards(Player player) 
 	{
 		return _playerCardsInArena[player];
 	}
-	
-	public bool SetMovable(IPlayer player, bool isMovable) 
+
+	public void SetAvailable(bool isAvailable) 
 	{
-		try 
-		{
-			_isMovable[player] = isMovable;
-			return true;
-		}
-		catch (Exception) 
-		{
-			return false;
-		}
+		_isAvailable = isAvailable;
 	}
 	
-	public bool IsMovable(IPlayer player) {
-		return _isMovable[player];
+	public bool IsAvailable() 
+	{
+		return _isAvailable;
 	}
 	
-	public int GetTotalPower(IPlayer player) 
+	public int GetTotalPower(Player player) 
 	{
 		int totalPower = 0;
 		foreach (var card in _playerCardsInArena[player]) 
 		{
-			totalPower += card.GetCurrentPower();
+			totalPower += card.GetCurrentPower(player.Id);
 		}
 		return totalPower;
 	}
