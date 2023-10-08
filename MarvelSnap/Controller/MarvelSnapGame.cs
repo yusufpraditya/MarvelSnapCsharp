@@ -5,11 +5,13 @@ public class MarvelSnapGame
 	private Player _player1, _player2;
 	private List<LocationCard> _locations = new();
 	private List<Player> _players = new();
+	private GameStatus _gameStatus = GameStatus.NotStarted;
 	private Dictionary<Player, Deck> _decks = new();
 	private Dictionary<ArenaType, Arena> _arenas = new();
 	private Dictionary<Player, bool> _playerTurn = new();
 	private Dictionary<Player, bool> _playerHasPlayed = new();
-	private GameStatus _gameStatus = GameStatus.NotStarted;
+	private Dictionary<int, List<Buff>> _energyBuffs = new();
+	private int _baseEnergy = 1;
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInHand = new();
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
 	private Dictionary<int, List<FutureTask>> _futureTasks = new();
@@ -39,6 +41,9 @@ public class MarvelSnapGame
 		_playerCardsInHand.Add(_player2, new());
 		_playerCardsInArena.Add(_player1, new());
 		_playerCardsInArena.Add(_player2, new());
+		
+		_energyBuffs.Add(_player1.Id, new());
+		_energyBuffs.Add(_player2.Id, new());
 		
 		_futureTasks.Add(_player1.Id, new());
 		_futureTasks.Add(_player2.Id, new());
@@ -185,9 +190,11 @@ public class MarvelSnapGame
 		if (Turn <= MaxTurn && PlayersHavePlayed()) 
 		{
 			Turn += 1;
+			_baseEnergy = Turn;
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
 			SetPlayerTurn(_player1);
+			
 			return true;
 		}
 		else 
@@ -220,6 +227,46 @@ public class MarvelSnapGame
 				}
 			}
 		}
+	}
+	
+	public bool AddEnergyBuff(int ownerId, Buff buff) 
+	{
+		try 
+		{
+			_energyBuffs[ownerId].Add(buff);
+			return true;
+		}
+		catch (Exception) 
+		{
+			return false;
+		}
+	}
+	
+	public bool RemoveEnergyBuff(int ownerId, int buffId) 
+	{
+		foreach (var buff in _energyBuffs[ownerId].ToList()) 
+		{
+			if (buff.Id == buffId) 
+			{
+				_energyBuffs[ownerId].Remove(buff);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public int GetCurrentEnergy(Player player) 
+	{
+		if (_energyBuffs[player.Id].Count > 0) 
+		{
+			int currentPower = 0;
+			foreach (var buff in _energyBuffs[player.Id]) 
+			{
+				currentPower += buff.Apply(_baseEnergy);
+			}
+			return currentPower;
+		}
+		else return _baseEnergy;
 	}
 	
 	public bool DrawCard(Player player) 

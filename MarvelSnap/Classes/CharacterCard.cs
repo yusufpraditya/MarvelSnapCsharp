@@ -40,22 +40,21 @@ public class CharacterCard : Card
 	
 	public void AddBuff(int ownerId, Buff buff) 
 	{
-		bool status = _buffs.TryAdd(ownerId, new List<Buff>() {buff});
+		bool status = _buffs.TryAdd(ownerId, new List<Buff>() { buff });
 		if (!status) _buffs[ownerId].Add(buff);
 	}
 	
-	public void RemoveBuff(int ownerId, int buffId)
+	public bool RemoveBuff(int ownerId, int buffId)
 	{
-		foreach (var kvp in _buffs) 
+		foreach (var buff in _buffs[ownerId].ToList()) 
 		{
-			if (kvp.Key == ownerId) 
+			if (buff.Id == buffId)
 			{
-				foreach (var buff in kvp.Value) 
-				{
-					if (buff.Id == buffId) _buffs[kvp.Key].Remove(buff);
-				}
-			}
+				_buffs[ownerId].Remove(buff);
+				return true;
+			} 
 		}
+		return false;
 	}
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
