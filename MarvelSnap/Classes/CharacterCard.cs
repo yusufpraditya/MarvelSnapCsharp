@@ -58,8 +58,6 @@ public class CharacterCard : Card
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
 	{
-		Console.WriteLine("punten");
-		Thread.Sleep(1000);
 	}
 
 	public override void Ongoing(Player player, MarvelSnapGame controller)

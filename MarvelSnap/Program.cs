@@ -31,8 +31,8 @@ public class Program
 			
 			if (game.GetGameStatus() == GameStatus.PlayersTurn) 
 			{
-				Console.WriteLine("Turn: " + game.Turn);
 				Player player = game.GetPlayerTurn();
+				Console.WriteLine("Player: " + player.Id + " Turn: " + game.Turn);
 				ChooseAction(out int action);
 				switch (action) 
 				{
@@ -145,8 +145,6 @@ public class Program
 			bool status2 = int.TryParse(Console.ReadLine(), out int input2);
 			if (status2 && input2 >= 1 && input2 <= 3) 
 			{
-				Console.WriteLine("Arena " + (ArenaType) (input2-1));
-				Thread.Sleep(1000);
 				game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
 			}
 		}

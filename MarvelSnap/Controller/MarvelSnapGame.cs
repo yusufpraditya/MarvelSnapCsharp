@@ -40,6 +40,9 @@ public class MarvelSnapGame
 		_playerCardsInArena.Add(_player1, new());
 		_playerCardsInArena.Add(_player2, new());
 		
+		_futureTasks.Add(_player1.Id, new());
+		_futureTasks.Add(_player2.Id, new());
+		
 		// test, will refactor later
 		
 		AntMan antman1 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
@@ -166,6 +169,7 @@ public class MarvelSnapGame
 			Turn += 1;
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
+			SetPlayerTurn(_player1);
 			return true;
 		}
 		else 
@@ -177,37 +181,25 @@ public class MarvelSnapGame
 	public void EndTurn(Player player) 
 	{
 		_playerHasPlayed[player] = true;
+		
 		if (PlayersHavePlayed()) 
 		{
-			List<CharacterCard> cards = new();
 			foreach (var p in _players) 
 			{
-				foreach (var kvp in _arenas) 
+				foreach (var card in _playerCardsInArena[p]) 
 				{
-					cards = cards.Concat(_arenas[kvp.Key].GetCards(p)).ToList();
+					card.Ongoing(p, this);
+					card.OnReveal(p, this);
+					card.OnDestroyed(p, this);
+					card.OnMoved(p, this);
+					
 				}
-			}
-			
-			Console.WriteLine("Count: " + cards.Count);
-			Thread.Sleep(1000);
-			
-			foreach (var card in cards) 
-			{
-				Console.WriteLine("YOooo");
-				Console.WriteLine(card.Name);
-				Thread.Sleep(1000);
 				
-				card.Ongoing(player, this);
-				card.OnReveal(player, this);
-				card.OnDestroyed(player, this);
-				card.OnMoved(player, this);
-				foreach (var kvp in _futureTasks) 
+				// https://code-maze.com/csharp-remove-elements-from-list-iteration/
+				for (int i = _futureTasks[p.Id].Count - 1; i >= 0; i--) 
 				{
-					foreach (var task in _futureTasks[kvp.Key]) 
-					{
-						bool status = task.Run(Turn);
-						if (status) _futureTasks.Remove(kvp.Key);
-					}
+					bool status = _futureTasks[p.Id][i].Run(Turn);
+					if (status) RemoveFutureTask(p.Id, _futureTasks[p.Id][i]);
 				}
 			}
 		}
@@ -273,10 +265,15 @@ public class MarvelSnapGame
 		if (!status) _futureTasks[ownerId].Add(task);
 	}
 	
-	// public bool RemoveFutureTask(int ownerId, int taskId) 
-	// {
-		
-	// }
+	public bool RemoveFutureTask(int ownerId, FutureTask task) 
+	{
+		if (_futureTasks[ownerId].Count > 0) 
+		{
+			_futureTasks[ownerId].Remove(task);
+			return true;
+		}
+		return false;
+	}
 	
 	public int GetLatestTaskId() 
 	{
@@ -288,25 +285,13 @@ public class MarvelSnapGame
 		return _locations;
 	}
 	
-	public ArenaType? GetArenaId(Player player, CharacterCard card) 
+	public Dictionary<ArenaType, Arena> GetArenas() 
 	{
-		foreach (var kvp in _arenas) 
-		{
-			Console.WriteLine(kvp.Value.Location.Name);
-			Thread.Sleep(1000);
-			
-			if (kvp.Value.GetCards(player).Contains(card)) 
-			{
-				return kvp.Key;
-			}
-		}
-		return null;
+		return _arenas;
 	}
 	
 	public List<CharacterCard> GetArenaCards(Player player, ArenaType type) 
 	{
-		Console.WriteLine(type);
-		Thread.Sleep(1000);
 		return _arenas[type].GetCards(player);
 	}
 	
@@ -354,8 +339,6 @@ public class MarvelSnapGame
 	
 	private bool HasCardInArena(Player player, ArenaType type, CharacterCard card) 
 	{
-		Console.WriteLine("Type: " + type);
-		Thread.Sleep(1000);
 		if (_arenas[type].GetCards(player).Contains(card)) return true;
 		else return false;
 	}

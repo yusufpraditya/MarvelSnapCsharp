@@ -2,9 +2,9 @@
 
 public class LocationCard : Card
 {
-	public LocationCard(LocationType id, string name, string description) : base((int)id, name, description)
-	{
-	}
+    public LocationCard(LocationType id, string name, string description) : base((int)id, name, description)
+    {
+    }
 
     public override void OnReveal(Player player, MarvelSnapGame controller)
     {

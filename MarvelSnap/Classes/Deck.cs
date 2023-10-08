@@ -31,10 +31,7 @@ public class Deck
 			_cards.Remove(card);
 			return true;
 		}
-		else 
-		{
-			return false;
-		}
+		return false;
 	}
 	
 	public bool Contains(CharacterCard card) 

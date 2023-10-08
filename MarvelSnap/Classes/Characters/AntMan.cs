@@ -11,14 +11,20 @@ public class AntMan : CharacterCard
 	{
 	}
 
+	public override void OnReveal(Player player, MarvelSnapGame controller)
+	{
+		if (!IsRevealed) 
+		{
+			IsRevealed = true;
+			controller.NotifyCardRevealed(player, this);
+		}
+	}
+
 	public override void Ongoing(Player player, MarvelSnapGame controller)
 	{
-		Console.WriteLine("ongoing");
-		Thread.Sleep(1000);
-		ArenaType? arenaId = controller.GetArenaId(player, this);
-		List<CharacterCard> arenaCards = controller.GetArenaCards(player, (ArenaType) arenaId);
+		Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
 
-		if (arenaCards.Count == 4) 
+		if (arenaCards[player].Count == 4) 
 		{
 			AddBuff(player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
 			controller.NotifyPowerChanged(player, this);

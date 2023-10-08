@@ -16,20 +16,13 @@ public class Hawkeye : CharacterCard
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
 	{
-		Console.WriteLine("onreveal");
-		Thread.Sleep(1000);
 		_player = player;
 		_controller = controller;
-		Console.WriteLine("onreveal");
-		Thread.Sleep(1000);
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
-			ArenaType? arenaId = controller.GetArenaId(player, this);
-			Console.WriteLine((int)arenaId);
-			Thread.Sleep(1000);
-			List<CharacterCard> arenaCards = controller.GetArenaCards(player, (ArenaType) arenaId);
-			_cardCount = arenaCards.Count;
+			Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
+			_cardCount = arenaCards[player].Count;
 			controller.AddFutureTask(player.Id, new FutureTask(0, controller.Turn + 1) { Action = FutureTask });
 			controller.NotifyCardRevealed(player, this);
 		}
@@ -39,10 +32,9 @@ public class Hawkeye : CharacterCard
 	{
 		if (_controller != null && _player != null) 
 		{
-			ArenaType arenaId = (ArenaType)_controller.GetArenaId(_player, this);
-			List<CharacterCard> arenaCards = _controller.GetArenaCards(_player, arenaId);
+			Dictionary<Player, List<CharacterCard>> arenaCards = _controller.GetArenaCardsForEachPlayer();
 			
-			if (arenaCards.Count > _cardCount) 
+			if (arenaCards[_player].Count > _cardCount) 
 			{
 				AddBuff(_player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
 				_controller.NotifyPowerChanged(_player, this);

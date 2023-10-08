@@ -21,8 +21,8 @@ public class Player
 		return Id;
 	}
 
-    public override bool Equals(object? obj)
-    {
-        return obj is Player player && player.Id == Id;
-    }
+	public override bool Equals(object? obj)
+	{
+		return obj is Player player && player.Id == Id;
+	}
 }

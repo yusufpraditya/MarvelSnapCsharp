@@ -16,14 +16,20 @@ public class Medusa : CharacterCard
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
-			ArenaType? arenaId = controller.GetArenaId(player, this);
-			if (arenaId == ArenaType.Arena2) 
+			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
+			foreach (var kvp in arenas) 
 			{
-				AddBuff(player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
-				controller.NotifyPowerChanged(player, this);
-				_id += 1;
+				if (kvp.Value.GetCards(player).Contains(this)) 
+				{
+					if (kvp.Key == ArenaType.Arena2) 
+					{
+						AddBuff(player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
+						controller.NotifyPowerChanged(player, this);
+						_id += 1;
+					}
+					controller.NotifyCardRevealed(player, this);
+				}
 			}
-			controller.NotifyCardRevealed(player, this);
 		}
 	}
 }
