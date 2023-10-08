@@ -3,5 +3,7 @@
 public enum CharacterType
 {
 	AntMan = 0,
-	Hawkeye
+	Hawkeye,
+	Medusa, 
+	StarLord
 }

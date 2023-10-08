@@ -1,13 +1,13 @@
 ﻿namespace MarvelSnap;
 
-public class Medusa : CharacterCard
+public class StarLord : CharacterCard
 {
 	private int _id = 0;
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	
-	public Medusa(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
+	public StarLord(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
 	}
 
@@ -18,12 +18,15 @@ public class Medusa : CharacterCard
 			IsRevealed = true;
 			CardTurn = controller.Turn;
 			controller.NotifyCardRevealed(player, this);
-			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
-			foreach (var kvp in arenas) 
+			
+			Player opponent = controller.GetOpponent(player);
+			Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
+
+			foreach (var card in arenaCards[opponent]) 
 			{
-				if (kvp.Value.GetCards(player).Contains(this)) 
+				if (card.CardTurn == CardTurn) 
 				{
-					if (kvp.Key == ArenaType.Arena2) 
+					if (card.Location == Location) 
 					{
 						AddBuff(player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
 						controller.NotifyPowerChanged(player, this);

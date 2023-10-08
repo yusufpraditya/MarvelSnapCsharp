@@ -16,6 +16,7 @@ public class AntMan : CharacterCard
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
+			CardTurn = controller.Turn;
 			controller.NotifyCardRevealed(player, this);
 		}
 	}

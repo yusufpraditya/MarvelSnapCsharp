@@ -107,7 +107,6 @@ public class Program
 	static void DisplayPutCard(MarvelSnapGame game, Player player) 
 	{
 		List<LocationCard> locations = game.GetLocations();
-		Dictionary<Player, List<CharacterCard>> playerCardsInArena = game.GetArenaCardsForEachPlayer();
 		
 		Console.WriteLine("Following are current cards in each location.");
 		

@@ -2,7 +2,7 @@
 
 public class Arena
 {
-	Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
 	private bool _isAvailable = true;
 	public const int MaxCardsInArena = 4;
 	public ArenaType Id { get; set; }
@@ -43,6 +43,12 @@ public class Arena
 	public List<CharacterCard> GetCards(Player player) 
 	{
 		return _playerCardsInArena[player];
+	}
+	
+	public bool Contains(Player player, CharacterCard card) 
+	{
+		if (_playerCardsInArena[player].Contains(card)) return true;
+		else return false;
 	}
 
 	public void SetAvailable(bool isAvailable) 

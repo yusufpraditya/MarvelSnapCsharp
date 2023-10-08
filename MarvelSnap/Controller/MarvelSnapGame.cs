@@ -45,17 +45,29 @@ public class MarvelSnapGame
 		
 		// test, will refactor later
 		
-		AntMan antman1 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman2 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman3 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman4 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		AntMan antman5 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		// AntMan antman1 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		// AntMan antman2 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		// AntMan antman3 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		// AntMan antman4 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		// AntMan antman5 = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		
-		Hawkeye hawkeye1 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye2 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye3 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye4 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		Hawkeye hawkeye5 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		Medusa medusa1 = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		Medusa medusa2 = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		Medusa medusa3 = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		Medusa medusa4 = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		Medusa medusa5 = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		
+		// Hawkeye hawkeye1 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		// Hawkeye hawkeye2 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		// Hawkeye hawkeye3 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		// Hawkeye hawkeye4 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		// Hawkeye hawkeye5 = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		
+		StarLord starlord1 = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		StarLord starlord2 = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		StarLord starlord3 = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		StarLord starlord4 = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		StarLord starlord5 = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
 		
 		LocationCard location1 = new(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
 		LocationCard location2 = new(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
@@ -78,17 +90,17 @@ public class MarvelSnapGame
 		_decks.Add(_player1, deck1);
 		_decks.Add(_player2, deck2);
 		
-		_decks[_player1].Add(hawkeye1);
-		_decks[_player1].Add(hawkeye2);
-		_decks[_player1].Add(hawkeye3);
-		_decks[_player1].Add(hawkeye4);
-		_decks[_player1].Add(hawkeye5);
+		_decks[_player1].Add(medusa1);
+		_decks[_player1].Add(medusa2);
+		_decks[_player1].Add(medusa3);
+		_decks[_player1].Add(medusa4);
+		_decks[_player1].Add(medusa5);
 		
-		_decks[_player2].Add(antman1);
-		_decks[_player2].Add(antman2);
-		_decks[_player2].Add(antman3);
-		_decks[_player2].Add(antman4);
-		_decks[_player2].Add(antman5);
+		_decks[_player2].Add(starlord1);
+		_decks[_player2].Add(starlord2);
+		_decks[_player2].Add(starlord3);
+		_decks[_player2].Add(starlord4);
+		_decks[_player2].Add(starlord5);
 		
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
@@ -117,6 +129,12 @@ public class MarvelSnapGame
 	public List<Player> GetPlayers() 
 	{
 		return _players;
+	}
+	
+	public Player GetOpponent(Player player) 
+	{
+		if (_players[0] != player) return _players[0];
+		else return _players[1];
 	}
 	
 	// private List<LocationCard> ShuffleLocation() 
@@ -182,17 +200,16 @@ public class MarvelSnapGame
 	{
 		_playerHasPlayed[player] = true;
 		
-		if (PlayersHavePlayed()) 
+		if (PlayersHavePlayed())
 		{
 			foreach (var p in _players) 
 			{
 				foreach (var card in _playerCardsInArena[p]) 
 				{
-					card.Ongoing(p, this);
 					card.OnReveal(p, this);
+					card.Ongoing(p, this);
 					card.OnDestroyed(p, this);
-					card.OnMoved(p, this);
-					
+					card.OnMoved(p, this);	
 				}
 				
 				// https://code-maze.com/csharp-remove-elements-from-list-iteration/
@@ -203,7 +220,6 @@ public class MarvelSnapGame
 				}
 			}
 		}
-		
 	}
 	
 	public bool DrawCard(Player player) 
@@ -329,6 +345,8 @@ public class MarvelSnapGame
 			bool success = _arenas[type].PutCard(player, card);
 			if (success) 
 			{
+				_playerCardsInArena[player] = _arenas[type].GetCards(player);
+				card.Location = type;
 				RemoveCardInHand(player, card);
 				return true;
 			}

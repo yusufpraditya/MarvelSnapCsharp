@@ -21,6 +21,7 @@ public class Hawkeye : CharacterCard
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
+			CardTurn = controller.Turn;
 			Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
 			_cardCount = arenaCards[player].Count;
 			controller.AddFutureTask(player.Id, new FutureTask(0, controller.Turn + 1) { Action = FutureTask });

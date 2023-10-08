@@ -6,6 +6,8 @@ public class CharacterCard : Card
 	public int BaseEnergyCost { get; set; }
 	public int BasePower { get; set; }
 	public bool HasAbility { get; set; }
+	public int CardTurn { get; set; }
+	public ArenaType Location { get; set; }
 	
 	public CharacterCard(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base((int)id, name, description)
 	{
