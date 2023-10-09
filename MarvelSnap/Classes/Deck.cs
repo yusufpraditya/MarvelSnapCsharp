@@ -6,9 +6,9 @@ public class Deck
 	private CharacterCard? _cardToDraw;
 	public const int MaxCardCount = 12;
 	public int Id { get; set; }
-	public string Name { get; set; }
+	public string? Name { get; set; }
 	
-	public Deck(int id, string name) 
+	public Deck(int id, string? name) 
 	{
 		Id = id;
 		Name = name;

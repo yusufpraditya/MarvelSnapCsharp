@@ -26,4 +26,5 @@ public abstract class Card
 	public abstract void Ongoing(Player player, MarvelSnapGame controller);
 	public abstract void OnDestroyed(Player player, MarvelSnapGame controller);
 	public abstract void OnMoved(Player player, MarvelSnapGame controller);
+	public abstract Card Copy();
 }

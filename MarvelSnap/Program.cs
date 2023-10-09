@@ -12,24 +12,15 @@ public class Program
 		
 		game.OnCardRevealed += CardRevealed;
 		game.OnCardPowerChanged += CardPowerChanged;
+		game.OnArenaPowerChanged += ArenaPowerChanged;
 		
 		InputPlayerName(game, player1, player2);
-		game.SetGameStatus(GameStatus.NewTurn);
+		game.Start();
+		game.SetGameStatus(GameStatus.Ongoing);
 		
 		while (game.GetGameStatus() != GameStatus.GameEnded) 
 		{
-			if (game.GetGameStatus() == GameStatus.NewTurn) 
-			{
-				game.DrawCard(player1);
-				game.DrawCard(player1);
-				game.DrawCard(player1);
-				game.DrawCard(player2);
-				game.DrawCard(player2);
-				game.DrawCard(player2);
-				game.SetGameStatus(GameStatus.PlayersTurn);
-			}
-			
-			if (game.GetGameStatus() == GameStatus.PlayersTurn) 
+			if (game.GetGameStatus() == GameStatus.Ongoing) 
 			{
 				Player player = game.GetPlayerTurn();
 				Console.WriteLine("Player: " + player.Id + " Turn: " + game.Turn);
@@ -47,7 +38,7 @@ public class Program
 						bool status = game.TryGetNextPlayer(out Player? nextPlayer);
 						if (status) game.SetPlayerTurn(nextPlayer);
 						bool canNextTurn = game.NextTurn();
-						if (canNextTurn) game.SetGameStatus(GameStatus.NewTurn);
+						// if (canNextTurn) game.SetGameStatus(GameStatus.NewTurn);
 						break;
 				}
 			}
@@ -57,10 +48,18 @@ public class Program
 		game.SetGameStatus(GameStatus.NotStarted);
 	}
 	
-	static void CardRevealed(Player player, Card card) 
+	static void CardRevealed(Player? player, Card card) 
 	{
-		Console.WriteLine(player.Name + " revealed " + card.Name + ".");
-		Thread.Sleep(1000);
+		if (player != null) 
+		{
+			Console.WriteLine(player.Name + " revealed " + card.Name + ".");
+			Thread.Sleep(1000);	
+		}
+		else 
+		{
+			Console.WriteLine(card.Name + " revealed.");
+			Thread.Sleep(1000);
+		}
 	}
 	
 	static void CardPowerChanged(Player player, Card card) 
@@ -69,6 +68,12 @@ public class Program
 		Thread.Sleep(1000);
 	}
 	
+	static void ArenaPowerChanged(Player player, Arena arena) 
+	{
+		Console.WriteLine(arena.Id + " power has changed.");
+		Thread.Sleep(1000);
+	}
+		
 	static void InputPlayerName(MarvelSnapGame game, Player player1, Player player2) 
 	{
 		Console.Clear();

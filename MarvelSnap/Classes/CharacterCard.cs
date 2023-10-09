@@ -6,6 +6,7 @@ public class CharacterCard : Card
 	public int BaseEnergyCost { get; set; }
 	public int BasePower { get; set; }
 	public bool HasAbility { get; set; }
+	public bool HasMoved { get; set; }
 	public int CardTurn { get; set; }
 	public ArenaType Location { get; set; }
 	
@@ -56,6 +57,11 @@ public class CharacterCard : Card
 		}
 		return false;
 	}
+	
+	public int GetLatestBuffId(Player player) 
+	{
+		return _buffs[player.Id].Count - 1;
+	}
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
 	{
@@ -71,5 +77,11 @@ public class CharacterCard : Card
 
 	public override void OnMoved(Player player, MarvelSnapGame controller)
 	{
+	}
+
+	public override CharacterCard Copy()
+	{
+		CharacterCard other = (CharacterCard) MemberwiseClone();
+		return other;
 	}
 }

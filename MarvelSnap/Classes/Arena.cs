@@ -3,6 +3,7 @@
 public class Arena
 {
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<int, List<Buff>> _powerBuffs = new();
 	private bool _isAvailable = true;
 	public const int MaxCardsInArena = 4;
 	public ArenaType Id { get; set; }
@@ -13,6 +14,8 @@ public class Arena
 		Id = id;
 		_playerCardsInArena.Add(player1, new());
 		_playerCardsInArena.Add(player2, new());
+		_powerBuffs.Add(player1.Id, new());
+		_powerBuffs.Add(player2.Id, new());
 	}
 	
 	public void SetLocation(LocationCard location) 
@@ -20,9 +23,9 @@ public class Arena
 		Location = location;
 	}
 	
-	public bool PutCard(Player player, CharacterCard? card) 
+	public bool PutCard(Player player, CharacterCard card) 
 	{
-		if (_playerCardsInArena[player].Count < MaxCardsInArena) 
+		if (_isAvailable && _playerCardsInArena[player].Count < MaxCardsInArena) 
 		{
 			_playerCardsInArena[player].Add(card);
 			return true;
@@ -59,6 +62,29 @@ public class Arena
 	public bool IsAvailable() 
 	{
 		return _isAvailable;
+	}
+	
+	public void AddPowerBuff(int ownerId, Buff buff) 
+	{
+		_powerBuffs[ownerId].Add(buff);
+	}
+	
+	public bool RemovePowerBuff(int ownerId, int buffId) 
+	{
+		foreach (var buff in _powerBuffs[ownerId].ToList()) 
+		{
+			if (buff.Id == buffId)
+			{
+				_powerBuffs[ownerId].Remove(buff);
+				return true;
+			} 
+		}
+		return false;
+	}
+	
+	public int GetLatestBuffId(Player player) 
+	{
+		return _powerBuffs[player.Id].Count - 1;
 	}
 	
 	public int GetTotalPower(Player player) 
