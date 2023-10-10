@@ -38,7 +38,7 @@ public class MisterFantastic : CharacterCard
 		}
 		if (!_powerBuffActivated) 
 		{
-			
+			_powerBuffActivated = true;
 			foreach (var arena in arenas) 
 			{
 				_id = arena.GetLatestBuffId(player) + 1;

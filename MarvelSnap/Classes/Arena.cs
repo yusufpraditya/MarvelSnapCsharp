@@ -82,6 +82,11 @@ public class Arena
 		return false;
 	}
 	
+	public List<Buff> GetPowerBuffs(int ownerId) 
+	{
+		return _powerBuffs[ownerId];
+	}
+	
 	public int GetLatestBuffId(Player player) 
 	{
 		return _powerBuffs[player.Id].Count - 1;

@@ -26,12 +26,24 @@ public class Buff : IComparable<Buff>
 			return Value * value;
 		}
 	}
+	
+	public string GetSymbol() 
+	{
+		if (Operation == BuffOperation.Add) 
+		{
+			return "+";
+		} 
+		else 
+		{
+			return "x";
+		}
+	}
 
 	public int CompareTo(Buff? other)
 	{
 		if (other == null)
 			return 1;
 		else
-			return (int)Operation.CompareTo((int)other.Operation);
+			return Operation.CompareTo(other.Operation);
 	}
 }

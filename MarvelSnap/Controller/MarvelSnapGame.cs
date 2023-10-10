@@ -21,7 +21,7 @@ public class MarvelSnapGame
 	public const int DefaultMaxTurn = 6;
 	public Action<int>? OnTurnChanged { get; set; }
 	public Action<Player?, Card>? OnCardRevealed { get; set; }
-	public Action<Player, Card>? OnCardPowerChanged { get; set; }
+	public Action<Player, CharacterCard>? OnCardPowerChanged { get; set; }
 	public Action<Player, Arena>? OnArenaPowerChanged { get; set; }
 	public Action<Player, Card>? OnEnergyCostChanged { get; set; }
 	public Action<Player>? OnGameEnded { get; set; }
@@ -451,7 +451,7 @@ public class MarvelSnapGame
 		OnCardRevealed?.Invoke(player, card);
 	}
 	
-	public void NotifyPowerChanged(Player player, Card card) 
+	public void NotifyPowerChanged(Player player, CharacterCard card) 
 	{
 		OnCardPowerChanged?.Invoke(player, card);
 	}

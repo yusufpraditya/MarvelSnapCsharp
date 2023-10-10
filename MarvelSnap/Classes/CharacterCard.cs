@@ -58,6 +58,11 @@ public class CharacterCard : Card
 		return false;
 	}
 	
+	public List<Buff> GetBuffs(int ownerId) 
+	{
+		return _buffs[ownerId];
+	}
+	
 	public int GetLatestBuffId(Player player) 
 	{
 		return _buffs[player.Id].Count - 1;
