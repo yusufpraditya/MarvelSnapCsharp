@@ -10,13 +10,18 @@ public partial class Program
 		Player player1 = new(1);
 		Player player2 = new(2);
 		MarvelSnapGame game = new(player1, player2);
-		
-		game.OnCardRevealed += CardRevealed;
-		game.OnCardPowerChanged += CardPowerChanged;
-		game.OnArenaPowerChanged += ArenaPowerChanged;
-		
-		if (!isSpectre) DisplayConsole(game, player1, player2);
-		else DisplaySpectre(game, player1, player2);
+
+		if (!isSpectre) 
+		{
+			game.OnCardRevealed += CardRevealed;
+			game.OnCardPowerChanged += CardPowerChanged;
+			game.OnArenaPowerChanged += ArenaPowerChanged;
+			DisplayConsole(game, player1, player2);
+		}
+		else 
+		{
+			DisplaySpectre(game, player1, player2);
+		}
 	}
 	
 	static void CardRevealed(Player? player, Card card) 

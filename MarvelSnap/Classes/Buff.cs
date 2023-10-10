@@ -17,26 +17,12 @@ public class Buff : IComparable<Buff>
 	
 	public int Apply(int value)
 	{
-		if (Operation == BuffOperation.Add) 
-		{
-			return Value + value;
-		} 
-		else 
-		{
-			return Value * value;
-		}
+		return Operation == BuffOperation.Add ? Value + value : Value * value;
 	}
 	
 	public string GetSymbol() 
 	{
-		if (Operation == BuffOperation.Add) 
-		{
-			return "+";
-		} 
-		else 
-		{
-			return "x";
-		}
+		return Operation == BuffOperation.Add ? "+" : "x";
 	}
 
 	public int CompareTo(Buff? other)
