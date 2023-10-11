@@ -1,9 +1,16 @@
-﻿namespace MarvelSnap;
+﻿using System.Text.Json;
+
+namespace MarvelSnap;
 
 public class Kyln : LocationCard
 {	
 	public Kyln(LocationType id, string name, string description) : base(id, name, description)
 	{
+	}
+	
+	public Kyln()
+	{
+		
 	}
 
 	public override void OnReveal(Player? player, MarvelSnapGame controller)
@@ -25,5 +32,12 @@ public class Kyln : LocationCard
 				arena.SetAvailable(false);
 			}
 		}
+	}
+	
+	public override Kyln? DeepCopy()
+	{
+		string json = JsonSerializer.Serialize(this);
+		Kyln? card = JsonSerializer.Deserialize<Kyln>(json);
+		return card;
 	}
 }

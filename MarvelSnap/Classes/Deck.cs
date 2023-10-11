@@ -14,7 +14,7 @@ public class Deck
 		Name = name;
 	}
 	
-	public bool Add(CharacterCard card) 
+	public bool Add(CharacterCard? card) 
 	{
 		if (card != null && _cards.Count < MaxCardCount) 
 		{

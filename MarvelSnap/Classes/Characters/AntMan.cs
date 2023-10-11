@@ -1,14 +1,23 @@
-﻿namespace MarvelSnap;
+﻿using System.Text.Json;
+
+namespace MarvelSnap;
 
 public class AntMan : CharacterCard
 {
-	private int _id = 0;
+	private int _buffId = 0;
+	private bool _powerBuffActivated;
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	
 	public AntMan(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
+		
+	}
+
+	public AntMan() 
+	{
+		
 	}
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
@@ -25,11 +34,22 @@ public class AntMan : CharacterCard
 	{
 		Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
 
-		if (arenaCards[player].Count == 4) 
+		if (!_powerBuffActivated)
 		{
-			AddBuff(player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
-			controller.NotifyPowerChanged(player, this);
-			_id += 1;
+			if (arenaCards[player].Count == 4) 
+			{
+				AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+				controller.NotifyPowerChanged(player, this);
+				_buffId += 1;
+				_powerBuffActivated = true;
+			}
 		}
+	}
+
+	public override AntMan? DeepCopy()
+	{
+		string json = JsonSerializer.Serialize(this);
+		AntMan? card = JsonSerializer.Deserialize<AntMan>(json);
+		return card;
 	}
 }

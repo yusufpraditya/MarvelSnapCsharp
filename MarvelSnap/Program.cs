@@ -5,7 +5,7 @@ public partial class Program
 {
 	static void Main() 
 	{
-		bool isSpectre = true;
+		bool isSpectre = false;
 		
 		Player player1 = new(1);
 		Player player2 = new(2);
@@ -54,38 +54,44 @@ public partial class Program
 			}
 		}
 		
-		Console.WriteLine($"{card.Name} power has changed: {currentPower} ({baseWithBuff})");
+		Console.WriteLine($"({player.Name}) {card.Name} power has changed: {currentPower} ({baseWithBuff})");
 		Thread.Sleep(1000);
 	}
 	
 	static void ArenaPowerChanged(Player player, Arena arena) 
 	{
+		int currentPower = arena.GetTotalPower(player);
 		List<Buff> powerBuffs = arena.GetPowerBuffs(player.Id);
-		string buffString = "";
+		
+		string buffString = "0";
 		foreach (var buff in powerBuffs) 
 		{
 			if (buff.Type == BuffType.Power)
-				buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
+				buffString += $" {buff.GetSymbol()}{buff.Value}";
 		}
-		Console.WriteLine($"({player.Name}) {arena.Id} power has changed: {buffString}");
+		Console.WriteLine($"({player.Name}) {arena.Id} power has changed: {currentPower} ({buffString})");
 		Thread.Sleep(1000);
 	}
 	
 	static void EnergyCostChanged(Player player, CharacterCard card) 
 	{
+		int currentEnergy = card.GetCurrentEnergyCost(player.Id);
 		List<Buff> buffs = card.GetBuffs(player.Id);
-		string buffString = "";
+
+		string buffString = card.BaseEnergyCost.ToString();
 		foreach (var buff in buffs) 
 		{
 			if (buff.Type == BuffType.Energy)
-				buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
+				buffString += $" {buff.GetSymbol()}{buff.Value}";
 		}
-		Console.WriteLine(card.Name + " energy cost has changed: " + buffString);
+		Console.WriteLine($"({player.Name}) {card.Name} energy cost has changed: {currentEnergy} ({buffString})");
 		Thread.Sleep(1000);
 	}
 	
 	static void GameEnded(Player? player) 
 	{
+		Console.WriteLine("Game ended. Deciding the winner..");
+		Thread.Sleep(1000);
 		if (player != null) 
 		{
 			Console.WriteLine($"{player.Name} has won the match.");

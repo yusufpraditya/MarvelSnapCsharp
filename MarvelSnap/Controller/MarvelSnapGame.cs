@@ -14,7 +14,7 @@ public class MarvelSnapGame
 	private Dictionary<int, List<Buff>> _energyBuffs = new();
 	private int _baseEnergy = 1;
 	private bool _hasStarted;
-	private Dictionary<Player, List<CharacterCard>> _playerCardsInHand = new();
+	private Dictionary<Player, List<CharacterCard?>> _playerCardsInHand = new();
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
 	private Dictionary<int, List<FutureTask>> _futureTasks = new();
 	public const int MaxCardInHand = 7;
@@ -87,29 +87,53 @@ public class MarvelSnapGame
 		_decks.Add(_player1, deck1);
 		_decks.Add(_player2, deck2);
 		
-		_decks[_player2].Add(antman.Copy());
-		_decks[_player2].Add(medusa.Copy());
-		_decks[_player2].Add(hawkeye.Copy());
-		_decks[_player2].Add(starlord.Copy());
-		_decks[_player2].Add(sentinel.Copy());
-		_decks[_player2].Add(misterFantastic.Copy());
-		_decks[_player2].Add(antman.Copy());
-		_decks[_player2].Add(medusa.Copy());
-		_decks[_player2].Add(hawkeye.Copy());
-		_decks[_player2].Add(starlord.Copy());
-		_decks[_player2].Add(sentinel.Copy());
+		// _decks[_player2].Add(antman.Copy());
+		// _decks[_player2].Add(medusa.Copy());
+		// _decks[_player2].Add(hawkeye.Copy());
+		// _decks[_player2].Add(starlord.Copy());
+		// _decks[_player2].Add(sentinel.Copy());
+		// _decks[_player2].Add(misterFantastic.Copy());
+		// _decks[_player2].Add(antman.Copy());
+		// _decks[_player2].Add(medusa.Copy());
+		// _decks[_player2].Add(hawkeye.Copy());
+		// _decks[_player2].Add(starlord.Copy());
+		// _decks[_player2].Add(sentinel.Copy());
 		
-		_decks[_player1].Add(antman.Copy());
-		_decks[_player1].Add(medusa.Copy());
-		_decks[_player1].Add(hawkeye.Copy());
-		_decks[_player1].Add(starlord.Copy());
-		_decks[_player1].Add(sentinel.Copy());
-		_decks[_player1].Add(misterFantastic.Copy());
-		_decks[_player2].Add(antman.Copy());
-		_decks[_player2].Add(medusa.Copy());
-		_decks[_player2].Add(hawkeye.Copy());
-		_decks[_player2].Add(starlord.Copy());
-		_decks[_player2].Add(sentinel.Copy());
+		// _decks[_player1].Add(antman.Copy());
+		// _decks[_player1].Add(medusa.Copy());
+		// _decks[_player1].Add(hawkeye.Copy());
+		// _decks[_player1].Add(starlord.Copy());
+		// _decks[_player1].Add(sentinel.Copy());
+		// _decks[_player1].Add(misterFantastic.Copy());
+		// _decks[_player2].Add(antman.Copy());
+		// _decks[_player2].Add(medusa.Copy());
+		// _decks[_player2].Add(hawkeye.Copy());
+		// _decks[_player2].Add(starlord.Copy());
+		// _decks[_player2].Add(sentinel.Copy());
+		
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
 		
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
@@ -327,7 +351,7 @@ public class MarvelSnapGame
 		return false;
 	}
 	
-	public bool AddCardInHand(Player player, CharacterCard card) 
+	public bool AddCardInHand(Player player, CharacterCard? card) 
 	{
 		try 
 		{
@@ -359,12 +383,12 @@ public class MarvelSnapGame
 		else return false;
 	}
 	
-	public List<CharacterCard> GetHandCards(Player player) 
+	public List<CharacterCard?> GetHandCards(Player player) 
 	{
 		return _playerCardsInHand[player];
 	}
 	
-	public Dictionary<Player, List<CharacterCard>> GetHandCardsForEachPlayer() 
+	public Dictionary<Player, List<CharacterCard?>> GetHandCardsForEachPlayer() 
 	{
 		return _playerCardsInHand;
 	}
@@ -453,8 +477,6 @@ public class MarvelSnapGame
 	
 	public Player? GetPlayerWinner() 
 	{
-		Console.WriteLine("Game ended. Deciding the winner..");
-		Thread.Sleep(1000);
 		List<Player?> playerWinner = new();
 		int player1Count = 0;
 		int player2Count = 0;

@@ -1,15 +1,23 @@
-﻿namespace MarvelSnap;
+﻿using System.Text.Json;
+
+namespace MarvelSnap;
 
 public class MisterFantastic : CharacterCard
 {
 	private bool _powerBuffActivated;
-	private int _id = 0;
+	private int _buffId = 0;
 	private const int _BuffValue = 2;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	
 	public MisterFantastic(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
+		
+	}
+	
+	public MisterFantastic() 
+	{
+		
 	}
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
@@ -33,16 +41,17 @@ public class MisterFantastic : CharacterCard
 			HasMoved = false;
 			foreach (var arena in arenas) 
 			{
-				controller.RemovePowerBuffFromArena(player.Id, arena.Id, _id);
+				controller.RemovePowerBuffFromArena(player.Id, arena.Id, _buffId);
 			}
 		}
+		
 		if (!_powerBuffActivated) 
 		{
 			_powerBuffActivated = true;
 			foreach (var arena in arenas) 
 			{
-				_id = arena.GetLatestBuffId(player) + 1;
-				Buff buff = new(_id, _BuffValue, _BuffType, _BuffOperation);
+				_buffId = arena.GetLatestBuffId(player) + 1;
+				Buff buff = new(_buffId, _BuffValue, _BuffType, _BuffOperation);
 				if (Location == arena.Id) 
 				{
 					if (arena.Location == locations[0]) 
@@ -65,5 +74,12 @@ public class MisterFantastic : CharacterCard
 				}
 			}
 		}
+	}
+	
+	public override MisterFantastic? DeepCopy()
+	{
+		string json = JsonSerializer.Serialize(this);
+		MisterFantastic? card = JsonSerializer.Deserialize<MisterFantastic>(json);
+		return card;
 	}
 }

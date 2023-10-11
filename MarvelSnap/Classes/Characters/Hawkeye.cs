@@ -1,8 +1,10 @@
-﻿namespace MarvelSnap;
+﻿using System.Text.Json;
+
+namespace MarvelSnap;
 
 public class Hawkeye : CharacterCard
 {
-	private int _id = 0;
+	private int _buffId = 0;
 	private int _cardCount;
 	private Player? _player;
 	private MarvelSnapGame? _controller;
@@ -12,6 +14,12 @@ public class Hawkeye : CharacterCard
 	
 	public Hawkeye(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
+		
+	}
+
+	public Hawkeye()
+	{
+		
 	}
 
 	public override void OnReveal(Player player, MarvelSnapGame controller)
@@ -37,10 +45,17 @@ public class Hawkeye : CharacterCard
 			
 			if (arenaCards[_player].Count > _cardCount) 
 			{
-				AddBuff(_player.Id, new Buff(_id, _BuffValue, _BuffType, _BuffOperation));
+				AddBuff(_player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
 				_controller.NotifyPowerChanged(_player, this);
-				_id += 1;
+				_buffId += 1;
 			}
 		}
+	}
+	
+	public override Hawkeye? DeepCopy()
+	{
+		string json = JsonSerializer.Serialize(this);
+		Hawkeye? card = JsonSerializer.Deserialize<Hawkeye>(json);
+		return card;
 	}
 }

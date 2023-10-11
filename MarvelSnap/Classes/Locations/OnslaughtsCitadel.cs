@@ -1,9 +1,16 @@
-﻿namespace MarvelSnap;
+﻿using System.Text.Json;
+
+namespace MarvelSnap;
 
 public class OnslaughtsCitadel : LocationCard
 {
 	public OnslaughtsCitadel(LocationType id, string name, string description) : base(id, name, description)
 	{
+	}
+	
+	public OnslaughtsCitadel() 
+	{
+		
 	}
 
 	public override void OnReveal(Player? player, MarvelSnapGame controller)
@@ -27,5 +34,12 @@ public class OnslaughtsCitadel : LocationCard
 				card.Ongoing(p, controller);
 			}
 		}
+	}
+	
+	public override OnslaughtsCitadel? DeepCopy()
+	{
+		string json = JsonSerializer.Serialize(this);
+		OnslaughtsCitadel? card = JsonSerializer.Deserialize<OnslaughtsCitadel>(json);
+		return card;
 	}
 }

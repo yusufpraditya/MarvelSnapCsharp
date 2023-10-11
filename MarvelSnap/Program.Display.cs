@@ -97,7 +97,7 @@ public partial class Program
 
 		Console.WriteLine();
 		Console.WriteLine("Following are your current cards in your hand.");
-		List<CharacterCard> handCards = game.GetHandCards(player);
+		List<CharacterCard?> handCards = game.GetHandCards(player);
 		foreach (var card in handCards) 
 		{
 			Console.WriteLine(card?.Name);
