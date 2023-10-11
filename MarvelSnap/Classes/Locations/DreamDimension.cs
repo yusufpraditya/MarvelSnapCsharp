@@ -49,10 +49,12 @@ public class DreamDimension : LocationCard
 						Buff buff = new Buff(id, _BuffValue, _BuffType, _BuffOperation);
 						_cardBuffs.TryAdd(card, buff);
 						card.AddBuff(player.Id, buff);
+						_controller.NotifyEnergyCostChanged(player, card);
 					}
 					if (_controller.Turn == _FutureTurn2) 
 					{
-						card.RemoveBuff(player.Id, _cardBuffs[card].Id);
+						if (_cardBuffs.ContainsKey(card))
+							card.RemoveBuff(player.Id, _cardBuffs[card].Id);
 					}
 				}
 			}

@@ -115,7 +115,12 @@ public partial class Program
 			bool status2 = int.TryParse(Console.ReadLine(), out int input2);
 			if (status2 && input2 >= 1 && input2 <= 3) 
 			{
-				game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
+				bool canPut = game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
+				if (!canPut) 
+				{
+					Console.WriteLine("Arena is full!");
+					Thread.Sleep(1000);
+				} 
 			}
 		}
 		else 

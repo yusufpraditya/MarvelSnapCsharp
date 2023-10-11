@@ -16,6 +16,8 @@ public partial class Program
 			game.OnCardRevealed += CardRevealed;
 			game.OnCardPowerChanged += CardPowerChanged;
 			game.OnArenaPowerChanged += ArenaPowerChanged;
+			game.OnEnergyCostChanged += EnergyCostChanged;
+			game.OnGameEnded += GameEnded;
 			DisplayConsole(game, player1, player2);
 		}
 		else 
@@ -40,14 +42,19 @@ public partial class Program
 	
 	static void CardPowerChanged(Player player, CharacterCard card) 
 	{
-		List<Buff> buffs = card.GetBuffs(player.Id);
-		buffs.Sort();
-		string buffString = "";
-		foreach (var buff in buffs) 
+		int currentPower = card.GetCurrentPower(player.Id);
+		List<Buff> powerBuffs = card.GetBuffs(player.Id);
+		
+		string baseWithBuff = card.BasePower.ToString();
+		foreach (var buff in powerBuffs) 
 		{
-			buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
+			if (buff.Type == BuffType.Power) 
+			{
+				baseWithBuff += $" {buff.GetSymbol()}{buff.Value}";
+			}
 		}
-		Console.WriteLine(card.Name + " power has changed: " + buffString);
+		
+		Console.WriteLine($"{card.Name} power has changed: {currentPower} ({baseWithBuff})");
 		Thread.Sleep(1000);
 	}
 	
@@ -57,9 +64,37 @@ public partial class Program
 		string buffString = "";
 		foreach (var buff in powerBuffs) 
 		{
-			buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
+			if (buff.Type == BuffType.Power)
+				buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
 		}
 		Console.WriteLine($"({player.Name}) {arena.Id} power has changed: {buffString}");
 		Thread.Sleep(1000);
+	}
+	
+	static void EnergyCostChanged(Player player, CharacterCard card) 
+	{
+		List<Buff> buffs = card.GetBuffs(player.Id);
+		string buffString = "";
+		foreach (var buff in buffs) 
+		{
+			if (buff.Type == BuffType.Energy)
+				buffString += buff.GetSymbol() + buff.Value.ToString() + " ";
+		}
+		Console.WriteLine(card.Name + " energy cost has changed: " + buffString);
+		Thread.Sleep(1000);
+	}
+	
+	static void GameEnded(Player? player) 
+	{
+		if (player != null) 
+		{
+			Console.WriteLine($"{player.Name} has won the match.");
+			Thread.Sleep(1000);
+		}
+		else 
+		{
+			Console.WriteLine("Game Draw!");
+			Thread.Sleep(1000);
+		}
 	}
 }

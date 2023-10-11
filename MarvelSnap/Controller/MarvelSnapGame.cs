@@ -23,8 +23,8 @@ public class MarvelSnapGame
 	public Action<Player?, Card>? OnCardRevealed { get; set; }
 	public Action<Player, CharacterCard>? OnCardPowerChanged { get; set; }
 	public Action<Player, Arena>? OnArenaPowerChanged { get; set; }
-	public Action<Player, Card>? OnEnergyCostChanged { get; set; }
-	public Action<Player>? OnGameEnded { get; set; }
+	public Action<Player, CharacterCard>? OnEnergyCostChanged { get; set; }
+	public Action<Player?>? OnGameEnded { get; set; }
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
 	
@@ -258,6 +258,11 @@ public class MarvelSnapGame
 					if (status) RemoveFutureTask(p.Id, _futureTasks[p.Id][i]);
 				}
 			}
+			if (Turn == MaxTurn) 
+			{
+				Player? winner = GetPlayerWinner();
+				OnGameEnded?.Invoke(winner);
+			}
 		}
 	}
 	
@@ -446,6 +451,27 @@ public class MarvelSnapGame
 		else return false;
 	}
 	
+	public Player? GetPlayerWinner() 
+	{
+		Console.WriteLine("Game ended. Deciding the winner..");
+		Thread.Sleep(1000);
+		List<Player?> playerWinner = new();
+		int player1Count = 0;
+		int player2Count = 0;
+		foreach (var arena in _listArenas) 
+		{
+			playerWinner.Add(arena.GetWinner());
+		}
+		foreach (var player in playerWinner) 
+		{
+			if (player == _player1) player1Count += 1;
+			else if (player == _player2) player2Count += 1;
+		}
+		if (player1Count > player2Count) return _player1;
+		else if (player2Count > player1Count) return _player2;
+		else return null;
+	}
+	
 	public void NotifyCardRevealed(Player? player, Card card) 
 	{
 		OnCardRevealed?.Invoke(player, card);
@@ -461,7 +487,7 @@ public class MarvelSnapGame
 		OnArenaPowerChanged?.Invoke(player, arena);
 	}
 	
-	public void NotifyEnergyCostChanged(Player player, Card card) 
+	public void NotifyEnergyCostChanged(Player player, CharacterCard card) 
 	{
 		OnEnergyCostChanged?.Invoke(player, card);
 	}

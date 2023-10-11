@@ -2,6 +2,8 @@
 
 public class Arena
 {
+	private Player _player1;
+	private Player _player2;
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
 	private Dictionary<int, List<Buff>> _powerBuffs = new();
 	private bool _isAvailable = true;
@@ -12,6 +14,8 @@ public class Arena
 	public Arena(ArenaType id, Player player1, Player player2) 
 	{
 		Id = id;
+		_player1 = player1;
+		_player2 = player2;
 		_playerCardsInArena.Add(player1, new());
 		_playerCardsInArena.Add(player2, new());
 		_powerBuffs.Add(player1.Id, new());
@@ -89,7 +93,11 @@ public class Arena
 	
 	public int GetLatestBuffId(Player player) 
 	{
-		return _powerBuffs[player.Id].Count - 1;
+		if(_powerBuffs.ContainsKey(player.Id)) 
+		{
+			return _powerBuffs[player.Id].Count - 1;
+		}
+		else return 0;
 	}
 	
 	public int GetTotalPower(Player player) 
@@ -100,5 +108,14 @@ public class Arena
 			totalPower += card.GetCurrentPower(player.Id);
 		}
 		return totalPower;
+	}
+	
+	public Player? GetWinner() 
+	{
+		int totalPowerPlayer1 = GetTotalPower(_player1);
+		int totalPowerPlayer2 = GetTotalPower(_player2);
+		if (totalPowerPlayer1 > totalPowerPlayer2) return _player1;
+		else if (totalPowerPlayer2 > totalPowerPlayer1) return _player2;
+		else return null;
 	}
 }

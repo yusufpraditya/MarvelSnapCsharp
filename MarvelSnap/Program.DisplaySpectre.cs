@@ -154,7 +154,8 @@ public partial class Program
 		Table characters = new Table()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.White)
-			.Title(player.Name + "'s hand - Turn: " + game.Turn.ToString() + "/" + game.MaxTurn.ToString())
+			.Title(player.Name + "'s hand")
+			.Caption("Turn: " + game.Turn.ToString() + "/" + game.MaxTurn.ToString())
 			.Centered();
 		List<CharacterCard> handCards = game.GetHandCards(player);
 		
@@ -305,8 +306,8 @@ public partial class Program
 			
 		var table = new Table()
 			.Centered()
-			.Border(TableBorder.Square)
-			.BorderColor(Color.Yellow)
+			.Border(TableBorder.None)
+			.BorderColor(Color.Black)
 			.Title("[yellow]Player 2[/]")
 			.Caption("[yellow]Player 1[/]")
 			.AddColumn(new TableColumn(arenaCards1Player2Table).Footer(arenaCards1Player1Table).Centered()) // Arena 1
