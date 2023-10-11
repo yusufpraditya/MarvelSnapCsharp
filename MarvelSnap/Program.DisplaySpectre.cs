@@ -20,6 +20,7 @@ public partial class Program
 		game.SetPlayerName(player2, "Praditya");
 		game.Start();
 		game.SetGameStatus(GameStatus.SelectAction);
+		
 		while (game.GetGameStatus() != GameStatus.GameEnded) 
 		{
 			Player player = game.GetPlayerTurn();
@@ -49,6 +50,7 @@ public partial class Program
 					if (status == GameStatus.SelectAction) 
 					{
 						_actionSelector = _actionSelector <= 0 ? 0 : _actionSelector - 1;
+						_cardInfo = "";
 					} 
 					else if (status == GameStatus.SelectCharacter) 
 					{
@@ -65,6 +67,7 @@ public partial class Program
 					if (status == GameStatus.SelectAction) 
 					{
 						_actionSelector = _actionSelector >= 2 ? 2 : _actionSelector + 1;
+						_cardInfo = "";
 					} 
 					else if (status == GameStatus.SelectCharacter) 
 					{
@@ -80,12 +83,20 @@ public partial class Program
 				case ConsoleKey.Spacebar or ConsoleKey.Enter:
 					if (status == GameStatus.SelectAction) 
 					{
-						if (_actionSelector == 0) 
+						if (_actionSelector == 0 || _actionSelector == 1) 
 						{
 							game.SetGameStatus(GameStatus.SelectCharacter);
 						}
+						else 
+						{
+							// End Turn
+							game.EndTurn(player);
+							bool nextPlayerStatus = game.TryGetNextPlayer(out Player? nextPlayer);
+							if (nextPlayerStatus) game.SetPlayerTurn(nextPlayer);
+							game.NextTurn();
+						}
 						
-						if (handCards.Count > 0) 
+						if (handCards.Count > 0 || _actionSelector == 2) 
 						{
 							_actionSelector = -1;
 							_characterSelector = 0;
@@ -125,21 +136,26 @@ public partial class Program
 		if (x1 == x2) return "■";
 		else return " ";
 	}
-	static Panel ActionInput() 
+	static Table ActionInput() 
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.AppendLine($"[[{Cursor(_actionSelector, 0)}]] Put card");
-		sb.AppendLine($"[[{Cursor(_actionSelector, 1)}]] Take card(s)");
-		sb.Append($"[[{Cursor(_actionSelector, 2)}]] End Turn");
-		Panel panel = new Panel(sb.ToString());
-		return panel.Expand();
+		sb.Append($"[[{Cursor(_actionSelector, 0)}]] Put card(s)");
+		sb.Append($"   [[{Cursor(_actionSelector, 1)}]] Take card(s)");
+		sb.Append($"   [[{Cursor(_actionSelector, 2)}]] End Turn");
+		Table table = new Table()
+			.Border(TableBorder.Square)
+			.BorderColor(Color.White)
+			.AddColumn(new TableColumn(sb.ToString()).Centered());
+		return table.Expand();
 	}
 	
 	static Table CharacterInput(MarvelSnapGame game, Player player) 
 	{
-		Table characters = new Table().Centered()
+		Table characters = new Table()
 			.Border(TableBorder.Square)
-			.BorderColor(Color.White);
+			.BorderColor(Color.White)
+			.Title(player.Name + "'s hand - Turn: " + game.Turn.ToString() + "/" + game.MaxTurn.ToString())
+			.Centered();
 		List<CharacterCard> handCards = game.GetHandCards(player);
 		
 		for (int i = 0; i < handCards.Count; i++) 
@@ -162,7 +178,7 @@ public partial class Program
 	static Table CardInfo() 
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.AppendLine("Character Info");
+		sb.AppendLine("Card Info");
 		sb.Append(_cardInfo);
 		Table table = new Table()
 			.Border(TableBorder.Square)
@@ -182,6 +198,17 @@ public partial class Program
 		List<CharacterCard> arenaCards1Player2 = game.GetArenaCards(players[1], ArenaType.Arena1);
 		List<CharacterCard> arenaCards2Player2 = game.GetArenaCards(players[1], ArenaType.Arena2);
 		List<CharacterCard> arenaCards3Player2 = game.GetArenaCards(players[1], ArenaType.Arena3);
+		// Dictionary<Player, List<CharacterCard>> arenaCards = game.GetArenaCardsForEachPlayer();
+		// Dictionary<ArenaType, Dictionary<Player, List<CharacterCard>>> dict = new();
+		
+		// foreach (var card in arenaCards[player]) 
+		// {
+		// 	if (card.Location == ArenaType.Arena1) 
+		// 	{
+		// 		dict.TryAdd(card.Location, arenaCards);
+		// 	}
+		// }
+		
 		string[] arenaCardsArray1Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
 		string[] arenaCardsArray2Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
 		string[] arenaCardsArray3Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
@@ -204,7 +231,7 @@ public partial class Program
 		
 		for (int i = 0; i < arenaCards1Player2.Count; i++) 
 		{
-			arenaCardsArray1Player1[i] = arenaCards1Player2[i].Name;
+			arenaCardsArray1Player2[i] = arenaCards1Player2[i].Name;
 		}
 		for (int i = 0; i < arenaCards2Player2.Count; i++) 
 		{
