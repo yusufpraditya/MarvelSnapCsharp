@@ -6,6 +6,7 @@ public class OnslaughtsCitadel : LocationCard
 {
 	public OnslaughtsCitadel(LocationType id, string name, string description) : base(id, name, description)
 	{
+		
 	}
 	
 	public OnslaughtsCitadel() 
@@ -31,6 +32,7 @@ public class OnslaughtsCitadel : LocationCard
 		{
 			foreach (var card in playerCardsInArena[p]) 
 			{
+				card.IsOngoingEffectActivated = false;
 				card.Ongoing(p, controller);
 			}
 		}

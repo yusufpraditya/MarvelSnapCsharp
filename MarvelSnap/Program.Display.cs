@@ -6,6 +6,7 @@ public partial class Program
 {
 	static void DisplayConsole(MarvelSnapGame game, Player player1, Player player2) 
 	{
+		Console.CursorVisible = false;
 		InputPlayerName(player1, player2);
 		game.Start();
 		game.SetGameStatus(GameStatus.Ongoing);
@@ -15,8 +16,9 @@ public partial class Program
 			if (game.GetGameStatus() == GameStatus.Ongoing) 
 			{
 				Player player = game.GetPlayerTurn();
+				int playerEnergy = game.GetCurrentEnergy(player);
 				Console.WriteLine();
-				Console.WriteLine($"Player: {player.Name}  Turn: {game.Turn}/{game.MaxTurn}");
+				Console.WriteLine($"Player: {player.Name} Energy: {playerEnergy} Turn: {game.Turn}/{game.MaxTurn}");
 				ChooseAction(out int action);
 				switch (action) 
 				{
@@ -97,20 +99,30 @@ public partial class Program
 			int input;
 			while (true) 
 			{
-				Console.WriteLine("Following are your current cards in your hand.");
+				Console.WriteLine($"Following are your current cards in your hand. (Your energy: {game.GetCurrentEnergy(player)})");
 				int number = 1;
 				foreach (var card in handCards) 
 				{
-					Console.WriteLine($"{number}. {card?.Name}");
+					Console.WriteLine($"{number}. {card?.Name} (Cost: {card?.GetCurrentEnergyCost(player.Id)} - Power: {card?.GetCurrentPower(player.Id)})");
 					number++;
 				}
+				Console.WriteLine();
+				Console.WriteLine("0. Back to action menu");
 				Console.WriteLine();
 				Console.Write("Choose card you want to put in: ");
 				
 				bool status = int.TryParse(Console.ReadLine(), out input);
-				if (status && input >= 1 && input <= handCards.Count) 
+				if (status && input >= 0 && input <= handCards.Count) 
 				{
-					break;
+					if (input == 0) break;
+					if (game.GetCurrentEnergy(player) < handCards[input - 1].GetCurrentEnergyCost(player.Id)) 
+					{
+						Console.Clear();
+						Console.WriteLine("Insufficient energy!");
+						Thread.Sleep(1000);
+						Console.Clear();
+					}
+					else break;
 				}
 				else 
 				{
@@ -122,24 +134,38 @@ public partial class Program
 			}
 			
 			List<LocationCard> locations = game.GetLocations();
-			while (true)
+			List<Arena> arenas = game.GetListOfArenas();
+			while (true && input != 0)
 			{
 				Console.WriteLine();
-				Console.WriteLine("1. " + locations[0].Name);
-				Console.WriteLine("2. " + (locations[1].IsRevealed ? locations[1].Name : "(Unrevealed)"));
-				Console.WriteLine("3. " + (locations[2].IsRevealed ? locations[2].Name : "(Unrevealed)"));
+				Console.WriteLine($"1. {locations[0].Name} {(arenas[0].IsAvailable() ? "" : "(disabled)")}");
+				Console.WriteLine($"   {locations[0].Description}");
+				Console.WriteLine($"2. {(locations[1].IsRevealed ? locations[1].Name : "(Unrevealed)")} {(arenas[1].IsAvailable() ? "" : "(disabled)")}");
+				Console.WriteLine($"   {(locations[1].IsRevealed ? locations[1].Description : "")}");
+				Console.WriteLine($"3. {(locations[2].IsRevealed ? locations[2].Name : "(Unrevealed)")} {(arenas[2].IsAvailable() ? "" : "(disabled)")}");
+				Console.WriteLine($"   {(locations[2].IsRevealed ? locations[2].Description : "")}");
 				Console.WriteLine();
 				Console.Write("Choose location you want to put in: ");
 				bool status2 = int.TryParse(Console.ReadLine(), out int input2);
 				if (status2 && input2 >= 1 && input2 <= 3) 
 				{
-					bool canPut = game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
-					if (!canPut) 
+					if (arenas[input2 - 1].IsAvailable()) 
 					{
-						Console.WriteLine("Arena is full!");
+						bool canPut = game.PutCardInArena(player, (ArenaType) (input2 - 1), handCards[input - 1]);
+						if (!canPut) 
+						{
+							Console.WriteLine("Arena is full!");
+							Thread.Sleep(1000);
+						} 
+						break;
+					}
+					else 
+					{
+						Console.Clear();
+						Console.WriteLine("You can't play card(s) here!");
 						Thread.Sleep(1000);
-					} 
-					break;
+						Console.Clear();
+					}
 				}
 				else 
 				{
@@ -153,7 +179,7 @@ public partial class Program
 		else 
 		{
 			Console.Clear();
-			Console.WriteLine("Your hand is empty!");
+			Console.WriteLine("Your have no card(s) in your hand!");
 			Thread.Sleep(1000);
 			Console.Clear();
 		}

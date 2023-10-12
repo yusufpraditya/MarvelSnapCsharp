@@ -29,10 +29,11 @@ public class DreamDimension : LocationCard
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
-			int taskId = controller.GetLatestTaskId() + 1;
+			
 
 			foreach (var p in players) 
 			{
+				int taskId = controller.GetLatestTaskId(p.Id) + 1;
 				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn1) { Action = () => { FutureTask(p.Id); } });
 				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn2) { Action = () => { FutureTask(p.Id); } });
 			}

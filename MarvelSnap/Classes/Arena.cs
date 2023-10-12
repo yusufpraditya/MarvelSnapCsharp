@@ -102,12 +102,24 @@ public class Arena
 	
 	public int GetTotalPower(Player player) 
 	{
-		int totalPower = 0;
+		int cardsPower = 0;
 		foreach (var card in _playerCardsInArena[player]) 
 		{
-			totalPower += card.GetCurrentPower(player.Id);
+			cardsPower += card.GetCurrentPower(player.Id);
 		}
-		return totalPower;
+		if (!_powerBuffs.ContainsKey(player.Id)) 
+		{
+			return cardsPower;
+		}
+		else 
+		{
+			int totalPower = 0;
+			foreach (var buff in _powerBuffs[player.Id]) 
+			{
+				totalPower += buff.Apply(0);
+			}
+			return totalPower;
+		}
 	}
 	
 	public Player? GetWinner() 

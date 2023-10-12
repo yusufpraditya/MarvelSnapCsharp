@@ -4,7 +4,6 @@ namespace MarvelSnap;
 
 public class MisterFantastic : CharacterCard
 {
-	private bool _powerBuffActivated;
 	private int _buffId = 0;
 	private const int _BuffValue = 2;
 	private const BuffType _BuffType = BuffType.Power;
@@ -37,7 +36,7 @@ public class MisterFantastic : CharacterCard
 		
 		if (HasMoved) 
 		{
-			_powerBuffActivated = false;
+			IsOngoingEffectActivated = false;
 			HasMoved = false;
 			foreach (var arena in arenas) 
 			{
@@ -45,9 +44,9 @@ public class MisterFantastic : CharacterCard
 			}
 		}
 		
-		if (!_powerBuffActivated) 
+		if (!IsOngoingEffectActivated) 
 		{
-			_powerBuffActivated = true;
+			IsOngoingEffectActivated = true;
 			foreach (var arena in arenas) 
 			{
 				_buffId = arena.GetLatestBuffId(player) + 1;

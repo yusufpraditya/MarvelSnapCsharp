@@ -10,6 +10,7 @@ public class CharacterCard : Card
 	public int BasePower { get; set; }
 	public bool HasAbility { get; set; }
 	public bool HasMoved { get; set; }
+	public bool IsOngoingEffectActivated { get; set; }
 	public int CardTurn { get; set; }
 	public ArenaType Location { get; set; }
 	

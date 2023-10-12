@@ -4,5 +4,9 @@ public enum LocationType
 {
 	OnslaughtsCitadel = 1000,
 	DreamDimension,
-	Kyln
+	Kyln, 
+	Limbo,
+	ProjectPegasus,
+	StarkTower,
+	IronMan
 }

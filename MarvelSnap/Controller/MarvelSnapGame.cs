@@ -52,26 +52,65 @@ public class MarvelSnapGame
 		_futureTasks.Add(_player1.Id, new());
 		_futureTasks.Add(_player2.Id, new());
 		
-		// test, will refactor later
-		
 		AntMan antman = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 		Medusa medusa = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
 		Hawkeye hawkeye = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		StarLord starlord = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		StarLord starLord = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
 		Sentinel sentinel = new(CharacterType.Sentinel, "Sentinel", "On Reveal: Add another Sentinel to your hand.", 2, 3, true);
 		MisterFantastic misterFantastic = new(CharacterType.MisterFantastic, "Mister Fantastic", "Ongoing: Adjacent locations have +2 Power.", 3, 2, true);
 		
 		OnslaughtsCitadel onslaughtsCitadel = new(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
 		DreamDimension dreamDimension = new(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
 		Kyln kyln = new(LocationType.Kyln, "Kyln", "You can't play cards here after turn 4.");
+		Limbo limbo = new(LocationType.Limbo, "Limbo", "There is a turn 7 this game.");
+		ProjectPegasus projectPegasus = new(LocationType.ProjectPegasus, "Project Pegasus", "+5 Energy this turn.");
+		StarkTower starkTower = new(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
 		
 		_locations.Add(onslaughtsCitadel);
 		_locations.Add(dreamDimension);
 		_locations.Add(kyln);
+		_locations.Add(limbo);
+		_locations.Add(projectPegasus);
+		_locations.Add(starkTower);
 		
-		Arena arena1 = new(ArenaType.Arena1, _player1, _player2) { Location = onslaughtsCitadel };
-		Arena arena2 = new(ArenaType.Arena2, _player1, _player2) { Location = dreamDimension };
-		Arena arena3 = new(ArenaType.Arena3, _player1, _player2) { Location = kyln };
+		Deck deck1 = new(_player1.Id, _player1.Name);
+		Deck deck2 = new(_player2.Id, _player2.Name);
+		
+		_decks.Add(_player1, deck1);
+		_decks.Add(_player2, deck2);
+		
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(medusa.DeepCopy());
+		_decks[_player2].Add(hawkeye.DeepCopy());
+		_decks[_player2].Add(starLord.DeepCopy());
+		_decks[_player2].Add(sentinel.DeepCopy());
+		_decks[_player2].Add(misterFantastic.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(medusa.DeepCopy());
+		_decks[_player2].Add(hawkeye.DeepCopy());
+		_decks[_player2].Add(starLord.DeepCopy());
+		_decks[_player2].Add(sentinel.DeepCopy());
+		
+		_decks[_player1].Add(antman.DeepCopy());
+		_decks[_player1].Add(medusa.DeepCopy());
+		_decks[_player1].Add(hawkeye.DeepCopy());
+		_decks[_player1].Add(starLord.DeepCopy());
+		_decks[_player1].Add(sentinel.DeepCopy());
+		_decks[_player1].Add(misterFantastic.DeepCopy());
+		_decks[_player2].Add(antman.DeepCopy());
+		_decks[_player2].Add(medusa.DeepCopy());
+		_decks[_player2].Add(hawkeye.DeepCopy());
+		_decks[_player2].Add(starLord.DeepCopy());
+		_decks[_player2].Add(sentinel.DeepCopy());
+		
+		_decks[_player1].Shuffle();
+		_decks[_player2].Shuffle();
+		
+		ShuffleLocation();
+		
+		Arena arena1 = new(ArenaType.Arena1, _player1, _player2) { Location = _locations[0] };
+		Arena arena2 = new(ArenaType.Arena2, _player1, _player2) { Location = _locations[1] };
+		Arena arena3 = new(ArenaType.Arena3, _player1, _player2) { Location = _locations[2] };
 		
 		_listArenas.Add(arena1);
 		_listArenas.Add(arena2);
@@ -80,64 +119,8 @@ public class MarvelSnapGame
 		_dictArenas[ArenaType.Arena1] = arena1;
 		_dictArenas[ArenaType.Arena2] = arena2;
 		_dictArenas[ArenaType.Arena3] = arena3;
-		
-		Deck deck1 = new(_player1.Id, _player1.Name);
-		Deck deck2 = new(_player2.Id, _player2.Name);
-		
-		_decks.Add(_player1, deck1);
-		_decks.Add(_player2, deck2);
-		
-		// _decks[_player2].Add(antman.Copy());
-		// _decks[_player2].Add(medusa.Copy());
-		// _decks[_player2].Add(hawkeye.Copy());
-		// _decks[_player2].Add(starlord.Copy());
-		// _decks[_player2].Add(sentinel.Copy());
-		// _decks[_player2].Add(misterFantastic.Copy());
-		// _decks[_player2].Add(antman.Copy());
-		// _decks[_player2].Add(medusa.Copy());
-		// _decks[_player2].Add(hawkeye.Copy());
-		// _decks[_player2].Add(starlord.Copy());
-		// _decks[_player2].Add(sentinel.Copy());
-		
-		// _decks[_player1].Add(antman.Copy());
-		// _decks[_player1].Add(medusa.Copy());
-		// _decks[_player1].Add(hawkeye.Copy());
-		// _decks[_player1].Add(starlord.Copy());
-		// _decks[_player1].Add(sentinel.Copy());
-		// _decks[_player1].Add(misterFantastic.Copy());
-		// _decks[_player2].Add(antman.Copy());
-		// _decks[_player2].Add(medusa.Copy());
-		// _decks[_player2].Add(hawkeye.Copy());
-		// _decks[_player2].Add(starlord.Copy());
-		// _decks[_player2].Add(sentinel.Copy());
-		
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		
-		_decks[_player1].Shuffle();
-		_decks[_player2].Shuffle();
 	}
+
 	
 	public void Start() 
 	{
@@ -155,11 +138,6 @@ public class MarvelSnapGame
 			_locations[0].Ongoing(null, this);
 		}
 	}
-	
-	// public bool SetDeck(Player player, Deck deck) 
-	// {
-		
-	// }
 	
 	public void SetGameStatus(GameStatus gameStatus) 
 	{
@@ -187,10 +165,17 @@ public class MarvelSnapGame
 		else return _players[1];
 	}
 	
-	// private List<LocationCard> ShuffleLocation() 
-	// {
-		
-	// }
+	private void ShuffleLocation() 
+	{
+		Random random = new();
+		for (int i = _locations.Count - 1; i > 0; i--) 
+		{
+			int randomIndex = random.Next(i + 1);
+			LocationCard randomLocation = _locations[randomIndex];
+			_locations[randomIndex] = _locations[i];
+			_locations[i] = randomLocation;
+		}
+	}
 	
 	public void SetPlayerTurn(Player? player) 
 	{
@@ -235,12 +220,13 @@ public class MarvelSnapGame
 		if (Turn <= MaxTurn && PlayersHavePlayed()) 
 		{
 			Turn += 1;
-			if (Turn == 2) 
+			_locations[0].Ongoing(null, this);
+			if (Turn >= 2) 
 			{
 				_locations[1].OnReveal(null, this);
 				_locations[1].Ongoing(null, this);
 			}
-			else if (Turn == 3) 
+			if (Turn >= 3) 
 			{
 				_locations[2].OnReveal(null, this);
 				_locations[2].Ongoing(null, this);
@@ -328,14 +314,18 @@ public class MarvelSnapGame
 	
 	public int GetCurrentEnergy(Player player) 
 	{
+		if (!_energyBuffs.ContainsKey(player.Id)) return _baseEnergy;
 		if (_energyBuffs[player.Id].Count > 0) 
 		{
-			int currentPower = 0;
+			int currentEnergy = 0;
 			foreach (var buff in _energyBuffs[player.Id]) 
 			{
-				currentPower += buff.Apply(_baseEnergy);
+				if (currentEnergy > 0)
+					currentEnergy += buff.Apply(0);
+				else
+					currentEnergy += buff.Apply(_baseEnergy);
 			}
-			return currentPower;
+			return currentEnergy;
 		}
 		else return _baseEnergy;
 	}
@@ -409,9 +399,14 @@ public class MarvelSnapGame
 		return false;
 	}
 	
-	public int GetLatestTaskId() 
+	public int GetLatestTaskId(int ownerId) 
 	{
-		return _futureTasks.Count - 1;
+		return _futureTasks[ownerId].Count - 1;
+	}
+	
+	public int GetLatestEnergyBuffId(int ownerId) 
+	{
+		return _energyBuffs[ownerId].Count - 1;
 	}
 	
 	public List<LocationCard> GetLocations() 
