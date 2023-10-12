@@ -74,30 +74,6 @@ public class DreamDimension : LocationCard
 					}
 				}
 			}
-			
-			// foreach (var player in players) 
-			// {
-			// 	foreach (var card in handCards[player]) 
-			// 	{
-			// 		if (_controller.Turn == _FutureTurn1) 
-			// 		{
-			// 			int id = card.GetLatestBuffId(player) + 1;
-			// 			Buff buff = new Buff(id, _BuffValue, _BuffType, _BuffOperation);
-			// 			_cardBuffs.TryAdd(card, buff);
-			// 			card.AddBuff(player.Id, buff);
-			// 			_controller.NotifyEnergyCostChanged(player, card);
-			// 		}
-			// 		if (_controller.Turn == _FutureTurn2) 
-			// 		{
-			// 			if (_cardBuffs.ContainsKey(card)) 
-			// 			{
-			// 				card.RemoveBuff(player.Id, _cardBuffs[card].Id);
-			// 				_controller.NotifyEnergyCostChanged(player, card);
-			// 			}
-							
-			// 		}
-			// 	}
-			// }
 		}
 	}
 	

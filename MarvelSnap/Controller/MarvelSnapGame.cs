@@ -469,6 +469,20 @@ public class MarvelSnapGame
 		return false;
 	}
 	
+	public bool TakeCardFromArena(Player player, ArenaType type, CharacterCard card) 
+	{
+		if (HasCardInArena(player, type, card)) 
+		{
+			bool success = _dictArenas[type].TakeCard(player, card);
+			if (success) 
+			{
+				_playerCardsInArena[player] = _dictArenas[type].GetCards(player);
+				AddCardInHand(player, card);
+			}
+		}
+		return false;
+	}
+	
 	private bool HasCardInArena(Player player, ArenaType type, CharacterCard card) 
 	{
 		if (_dictArenas[type].GetCards(player).Contains(card)) return true;
