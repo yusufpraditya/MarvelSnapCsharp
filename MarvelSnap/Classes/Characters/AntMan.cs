@@ -5,7 +5,6 @@ namespace MarvelSnap;
 public class AntMan : CharacterCard
 {
 	private int _buffId = 0;
-	private bool _powerBuffActivated;
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
@@ -32,16 +31,17 @@ public class AntMan : CharacterCard
 
 	public override void Ongoing(Player player, MarvelSnapGame controller)
 	{
-		Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
+		List<CharacterCard> arenaCards = controller.GetArenaCards(player, Location);
 
-		if (!_powerBuffActivated)
+		if (!IsOngoingEffectActivated)
 		{
-			if (arenaCards[player].Count == 4) 
+			if (arenaCards.Count == 4) 
 			{
-				AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+				IsOngoingEffectActivated = true;
+				OngoingEffectActivationCount++;
+				int buffId = GetLatestBuffId(player) + 1;
+				AddBuff(player.Id, new Buff(buffId, _BuffValue, _BuffType, _BuffOperation));
 				controller.NotifyPowerChanged(player, this);
-				_buffId += 1;
-				_powerBuffActivated = true;
 			}
 		}
 	}

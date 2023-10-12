@@ -4,7 +4,6 @@ namespace MarvelSnap;
 
 public class Hawkeye : CharacterCard
 {
-	private int _buffId = 0;
 	private int _cardCount;
 	private Player? _player;
 	private MarvelSnapGame? _controller;
@@ -30,8 +29,8 @@ public class Hawkeye : CharacterCard
 		{
 			IsRevealed = true;
 			CardTurn = controller.Turn;
-			Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
-			_cardCount = arenaCards[player].Count;
+			List<CharacterCard> arenaCards = controller.GetArenaCards(player, Location);
+			_cardCount = arenaCards.Count;
 			controller.AddFutureTask(player.Id, new FutureTask(0, controller.Turn + 1) { Action = FutureTask });
 			controller.NotifyCardRevealed(player, this);
 		}
@@ -41,13 +40,13 @@ public class Hawkeye : CharacterCard
 	{
 		if (_controller != null && _player != null) 
 		{
-			Dictionary<Player, List<CharacterCard>> arenaCards = _controller.GetArenaCardsForEachPlayer();
+			List<CharacterCard> arenaCards = _controller.GetArenaCards(_player, Location);
 			
-			if (arenaCards[_player].Count > _cardCount) 
+			if (arenaCards.Count > _cardCount) 
 			{
-				AddBuff(_player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+				int buffId = GetLatestBuffId(_player) + 1;
+				AddBuff(_player.Id, new Buff(buffId, _BuffValue, _BuffType, _BuffOperation));
 				_controller.NotifyPowerChanged(_player, this);
-				_buffId += 1;
 			}
 		}
 	}

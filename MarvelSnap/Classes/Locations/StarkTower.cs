@@ -28,22 +28,19 @@ public class StarkTower : LocationCard
 		if (controller.Turn > 5) 
 		{
 			List<Player> players = controller.GetPlayers();
-			List<Arena> arenas = controller.GetListOfArenas();
+			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
+			Dictionary<Player, List<CharacterCard>> playerCardsInArena = controller.GetArenaCardsForEachPlayer();
 			
 			foreach (var p in players) 
 			{
-				foreach (var arena in arenas) 
+				foreach (var card in playerCardsInArena[p]) 
 				{
-					List<CharacterCard> arenaCards = controller.GetArenaCards(p, arena.Id);
-					foreach (var card in arenaCards) 
+					if (arenas[card.Location].Location == this) 
 					{
-						if (arena.Location == this) 
-						{
-							int buffId = card.GetLatestBuffId(p) + 1;
-							Buff buff = new(buffId, 2, BuffType.Power, BuffOperation.Add);
-							card.AddBuff(p.Id, buff);
-							controller.NotifyPowerChanged(p, card);
-						}
+						int buffId = card.GetLatestBuffId(p) + 1;
+						Buff buff = new(buffId, 2, BuffType.Power, BuffOperation.Add);
+						card.AddBuff(p.Id, buff);
+						controller.NotifyPowerChanged(p, card);
 					}
 				}
 			}

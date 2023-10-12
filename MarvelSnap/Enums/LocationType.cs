@@ -8,5 +8,4 @@ public enum LocationType
 	Limbo,
 	ProjectPegasus,
 	StarkTower,
-	IronMan
 }

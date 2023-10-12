@@ -6,7 +6,7 @@ public class DreamDimension : LocationCard
 {
 	private const int _FutureTurn1 = 5;
 	private const int _FutureTurn2 = 6;
-	private const int _BuffValue = 3;
+	private const int _BuffValue = 1;
 	private const BuffType _BuffType = BuffType.Energy;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	private Dictionary<CharacterCard, Buff> _cardBuffs = new();

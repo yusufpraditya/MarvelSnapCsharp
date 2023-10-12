@@ -13,9 +13,11 @@ public class MarvelSnapGame
 	private Dictionary<Player, bool> _playerHasPlayed = new();
 	private Dictionary<int, List<Buff>> _energyBuffs = new();
 	private int _baseEnergy = 1;
+	private int _energySpent;
 	private bool _hasStarted;
 	private Dictionary<Player, List<CharacterCard?>> _playerCardsInHand = new();
 	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<Player, List<CharacterCard>> _destroyedCards = new();
 	private Dictionary<int, List<FutureTask>> _futureTasks = new();
 	public const int MaxCardInHand = 7;
 	public const int DefaultMaxTurn = 6;
@@ -24,6 +26,7 @@ public class MarvelSnapGame
 	public Action<Player, CharacterCard>? OnCardPowerChanged { get; set; }
 	public Action<Player, Arena>? OnArenaPowerChanged { get; set; }
 	public Action<Player, CharacterCard>? OnEnergyCostChanged { get; set; }
+	public Action<Player, CharacterCard, CharacterCard>? OnCardDestroyed { get; set; }
 	public Action<Player?>? OnGameEnded { get; set; }
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
@@ -45,6 +48,8 @@ public class MarvelSnapGame
 		_playerCardsInHand.Add(_player2, new());
 		_playerCardsInArena.Add(_player1, new());
 		_playerCardsInArena.Add(_player2, new());
+		_destroyedCards.Add(_player1, new());
+		_destroyedCards.Add(_player2, new());
 		
 		_energyBuffs.Add(_player1.Id, new());
 		_energyBuffs.Add(_player2.Id, new());
@@ -58,6 +63,9 @@ public class MarvelSnapGame
 		StarLord starLord = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
 		Sentinel sentinel = new(CharacterType.Sentinel, "Sentinel", "On Reveal: Add another Sentinel to your hand.", 2, 3, true);
 		MisterFantastic misterFantastic = new(CharacterType.MisterFantastic, "Mister Fantastic", "Ongoing: Adjacent locations have +2 Power.", 3, 2, true);
+		IronMan ironMan = new(CharacterType.IronMan, "Iron Man", "Ongoing: Your total Power is doubled at this location.", 5, 0, true);
+		Hulk hulk = new Hulk(CharacterType.Hulk, "Hulk", "HULK SMASH!", 6, 12, false);
+		Elektra elektra = new Elektra(CharacterType.Elektra, "Elektra", "On Reveal: Destroy a random enemy 1-Cost card at this location.", 1, 1, true);
 		
 		OnslaughtsCitadel onslaughtsCitadel = new(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
 		DreamDimension dreamDimension = new(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
@@ -67,7 +75,7 @@ public class MarvelSnapGame
 		StarkTower starkTower = new(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
 		
 		_locations.Add(onslaughtsCitadel);
-		_locations.Add(dreamDimension);
+		//_locations.Add(dreamDimension);
 		_locations.Add(kyln);
 		_locations.Add(limbo);
 		_locations.Add(projectPegasus);
@@ -79,29 +87,25 @@ public class MarvelSnapGame
 		_decks.Add(_player1, deck1);
 		_decks.Add(_player2, deck2);
 		
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(medusa.DeepCopy());
-		_decks[_player2].Add(hawkeye.DeepCopy());
-		_decks[_player2].Add(starLord.DeepCopy());
-		_decks[_player2].Add(sentinel.DeepCopy());
-		_decks[_player2].Add(misterFantastic.DeepCopy());
-		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(medusa.DeepCopy());
-		_decks[_player2].Add(hawkeye.DeepCopy());
-		_decks[_player2].Add(starLord.DeepCopy());
-		_decks[_player2].Add(sentinel.DeepCopy());
-		
 		_decks[_player1].Add(antman.DeepCopy());
-		_decks[_player1].Add(medusa.DeepCopy());
+		_decks[_player1].Add(elektra.DeepCopy());
 		_decks[_player1].Add(hawkeye.DeepCopy());
-		_decks[_player1].Add(starLord.DeepCopy());
-		_decks[_player1].Add(sentinel.DeepCopy());
+		_decks[_player1].Add(hulk.DeepCopy());
+		_decks[_player1].Add(ironMan.DeepCopy());
+		_decks[_player1].Add(medusa.DeepCopy());
 		_decks[_player1].Add(misterFantastic.DeepCopy());
+		_decks[_player1].Add(sentinel.DeepCopy());
+		_decks[_player1].Add(starLord.DeepCopy());
+		
 		_decks[_player2].Add(antman.DeepCopy());
-		_decks[_player2].Add(medusa.DeepCopy());
+		_decks[_player2].Add(elektra.DeepCopy());
 		_decks[_player2].Add(hawkeye.DeepCopy());
-		_decks[_player2].Add(starLord.DeepCopy());
+		_decks[_player2].Add(hulk.DeepCopy());
+		_decks[_player2].Add(ironMan.DeepCopy());
+		_decks[_player2].Add(medusa.DeepCopy());
+		_decks[_player2].Add(misterFantastic.DeepCopy());
 		_decks[_player2].Add(sentinel.DeepCopy());
+		_decks[_player2].Add(starLord.DeepCopy());
 		
 		_decks[_player1].Shuffle();
 		_decks[_player2].Shuffle();
@@ -212,14 +216,21 @@ public class MarvelSnapGame
 			else nextPlayer = _player1;
 			return true;
 		}
+
 		return false;
 	}
 	
 	public bool NextTurn() 
 	{
+		
 		if (Turn <= MaxTurn && PlayersHavePlayed()) 
 		{
 			Turn += 1;
+			if (Turn > MaxTurn) 
+			{
+				OnGameEnded?.Invoke(GetPlayerWinner());
+				return false;
+			}
 			_locations[0].Ongoing(null, this);
 			if (Turn >= 2) 
 			{
@@ -232,9 +243,14 @@ public class MarvelSnapGame
 				_locations[2].Ongoing(null, this);
 			}
 			_baseEnergy = Turn;
+			_energySpent = 0;
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
-			SetPlayerTurn(_player1);
+			Player? winner = GetPlayerWinner();
+			if (winner != null) 
+				SetPlayerTurn(winner);
+			else
+				SetPlayerTurn(_player1);
 			DrawCard(_player1);
 			DrawCard(_player2);
 			return true;
@@ -250,30 +266,48 @@ public class MarvelSnapGame
 		_playerHasPlayed[player] = true;
 		
 		if (PlayersHavePlayed())
-		{	
-			foreach (var p in _players) 
+		{
+			List<Player> revealers = new();
+			Player? firstRevealer = GetPlayerWinner();
+			Player secondRevealer;
+			Random random = new();
+			
+			if (firstRevealer != null) 
 			{
-				foreach (var card in _playerCardsInArena[p]) 
+				secondRevealer = GetOpponent(firstRevealer);
+				revealers.Add(firstRevealer);
+				revealers.Add(secondRevealer);
+			} 
+			else 
+			{
+				int randomIndex = random.Next(0, 1);
+				revealers.Add(_players[randomIndex]);
+				if (randomIndex == 0) revealers.Add(_players[1]);
+				else revealers.Add(_players[0]);
+			}
+			
+			foreach (var revealer in revealers)
+			{
+				foreach (var card in _playerCardsInArena[revealer])
 				{
-					card.OnReveal(p, this);
-					card.Ongoing(p, this);
-					card.OnDestroyed(p, this);
-					card.OnMoved(p, this);	
+					card.OnReveal(revealer, this);
+					card.Ongoing(revealer, this);
+					card.OnDestroyed(revealer, this);
+					card.OnMoved(revealer, this);	
 				}
 				
 				// https://code-maze.com/csharp-remove-elements-from-list-iteration/
-				for (int i = _futureTasks[p.Id].Count - 1; i >= 0; i--) 
+				for (int i = _futureTasks[revealer.Id].Count - 1; i >= 0; i--) 
 				{
-					bool status = _futureTasks[p.Id][i].Run(Turn);
-					if (status) RemoveFutureTask(p.Id, _futureTasks[p.Id][i]);
+					bool status = _futureTasks[revealer.Id][i].Run(Turn);
+					if (status) RemoveFutureTask(revealer.Id, _futureTasks[revealer.Id][i]);
 				}
 			}
-			if (Turn == MaxTurn) 
-			{
-				Player? winner = GetPlayerWinner();
-				OnGameEnded?.Invoke(winner);
-			}
 		}
+		
+		bool nextPlayerStatus = TryGetNextPlayer(out Player? nextPlayer);
+		if (nextPlayerStatus) SetPlayerTurn(nextPlayer);
+		NextTurn();
 	}
 	
 	public void AddPowerBuffToArena(int ownerId, ArenaType type, Buff buff) 
@@ -284,6 +318,11 @@ public class MarvelSnapGame
 	public bool RemovePowerBuffFromArena(int ownerId, ArenaType type, int buffId) 
 	{
 		return _dictArenas[type].RemovePowerBuff(ownerId, buffId);
+	}
+	
+	public int GetTotalPowerOfArena(Player player, ArenaType type) 
+	{
+		return _dictArenas[type].GetTotalPower(player);
 	}
 	
 	public bool AddEnergyBuff(int ownerId, Buff buff) 
@@ -314,10 +353,21 @@ public class MarvelSnapGame
 	
 	public int GetCurrentEnergy(Player player) 
 	{
-		if (!_energyBuffs.ContainsKey(player.Id)) return _baseEnergy;
+		_baseEnergy = Turn;
+		int currentEnergy = 0;
+		_energySpent = 0;
+		foreach (var card in _playerCardsInArena[player]) 
+		{
+			if (card.CardTurn == Turn)
+				_energySpent += card.GetCurrentEnergyCost(player.Id);
+		} 
+		
+		if (!_energyBuffs.ContainsKey(player.Id)) 
+		{
+			return _baseEnergy - _energySpent;
+		} 
 		if (_energyBuffs[player.Id].Count > 0) 
 		{
-			int currentEnergy = 0;
 			foreach (var buff in _energyBuffs[player.Id]) 
 			{
 				if (currentEnergy > 0)
@@ -325,9 +375,22 @@ public class MarvelSnapGame
 				else
 					currentEnergy += buff.Apply(_baseEnergy);
 			}
-			return currentEnergy;
+			return currentEnergy - _energySpent;
 		}
-		else return _baseEnergy;
+		else 
+		{
+			return _baseEnergy - _energySpent;
+		}
+	}
+
+	public int GetTotalEnergyCost(Player player) 
+	{
+		int totalEnergyCost = 0;
+		foreach (var card in _playerCardsInArena[player]) 
+		{
+			totalEnergyCost += card.GetCurrentEnergyCost(player.Id);
+		} 
+		return totalEnergyCost;
 	}
 	
 	public bool DrawCard(Player player) 
@@ -409,9 +472,29 @@ public class MarvelSnapGame
 		return _energyBuffs[ownerId].Count - 1;
 	}
 	
+	public int GetLatestArenaBuffId(Player? player, ArenaType type)
+	{
+		return _dictArenas[type].GetLatestBuffId(player);
+	}
+	
 	public List<LocationCard> GetLocations() 
 	{
 		return _locations;
+	}
+	
+	public bool DestroyCard(Player player, CharacterCard card) 
+	{
+		if (HasCardInArena(player, card.Location, card) && card.IsRevealed) 
+		{
+			bool success = _dictArenas[card.Location].TakeCard(player, card);
+			if (success) 
+			{
+				_playerCardsInArena[player].Remove(card);
+				_destroyedCards[player].Add(card);
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public Dictionary<ArenaType, Arena> GetArenas() 
@@ -453,7 +536,7 @@ public class MarvelSnapGame
 			bool success = _dictArenas[type].PutCard(player, card);
 			if (success) 
 			{
-				_playerCardsInArena[player] = _dictArenas[type].GetCards(player);
+				_playerCardsInArena[player].Add(card);
 				card.Location = type;
 				card.CardTurn = Turn;
 				RemoveCardInHand(player, card);
@@ -466,13 +549,14 @@ public class MarvelSnapGame
 	
 	public bool TakeCardFromArena(Player player, ArenaType type, CharacterCard card) 
 	{
-		if (HasCardInArena(player, type, card)) 
+		if (HasCardInArena(player, type, card) && !card.IsRevealed) 
 		{
 			bool success = _dictArenas[type].TakeCard(player, card);
 			if (success) 
 			{
-				_playerCardsInArena[player] = _dictArenas[type].GetCards(player);
+				_playerCardsInArena[player].Remove(card);
 				AddCardInHand(player, card);
+				return true;
 			}
 		}
 		return false;
@@ -521,5 +605,10 @@ public class MarvelSnapGame
 	public void NotifyEnergyCostChanged(Player player, CharacterCard card) 
 	{
 		OnEnergyCostChanged?.Invoke(player, card);
+	}
+	
+	public void NotifyCardDestroyed(Player player, CharacterCard destroyer, CharacterCard target) 
+	{
+		OnCardDestroyed?.Invoke(player, destroyer, target);
 	}
 }

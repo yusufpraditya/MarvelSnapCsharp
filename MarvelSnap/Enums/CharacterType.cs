@@ -7,5 +7,8 @@ public enum CharacterType
 	Medusa, 
 	MisterFantastic,
 	Sentinel,
-	StarLord
+	StarLord,
+	IronMan,
+	Hulk,
+	Elektra
 }

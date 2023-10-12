@@ -5,7 +5,7 @@ public partial class Program
 {
 	static void Main() 
 	{
-		bool isSpectre = false;
+		bool isSpectre = true;
 		
 		Player player1 = new(1);
 		Player player2 = new(2);
@@ -17,7 +17,9 @@ public partial class Program
 			game.OnCardPowerChanged += CardPowerChanged;
 			game.OnArenaPowerChanged += ArenaPowerChanged;
 			game.OnEnergyCostChanged += EnergyCostChanged;
+			game.OnCardDestroyed += CardDestroyed;
 			game.OnGameEnded += GameEnded;
+			
 			DisplayConsole(game, player1, player2);
 		}
 		else 
@@ -85,6 +87,12 @@ public partial class Program
 				buffString += $" {buff.GetSymbol()}{buff.Value}";
 		}
 		Console.WriteLine($"({player.Name}) {card.Name} energy cost has changed: {currentEnergy} ({buffString})");
+		Thread.Sleep(1000);
+	}
+	
+	static void CardDestroyed(Player player, CharacterCard destroyer, CharacterCard target) 
+	{
+		Console.WriteLine($"({player.Name}) {target.Name} has been destroyed by {destroyer.Name}");
 		Thread.Sleep(1000);
 	}
 	

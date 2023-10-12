@@ -9,7 +9,7 @@ public class Arena
 	private bool _isAvailable = true;
 	public const int MaxCardsInArena = 4;
 	public ArenaType Id { get; set; }
-	public LocationCard? Location { get; set;}
+	public LocationCard? Location { get; set; }
 	
 	public Arena(ArenaType id, Player player1, Player player2) 
 	{
@@ -114,10 +114,19 @@ public class Arena
 		else 
 		{
 			int totalPower = 0;
+			_powerBuffs[player.Id].Sort();
 			foreach (var buff in _powerBuffs[player.Id]) 
 			{
-				totalPower += buff.Apply(0);
+				if (buff.Operation == BuffOperation.Add) 
+				{
+					totalPower += buff.Value;
+				}
+				else 
+				{
+					totalPower *= buff.Value;
+				}
 			}
+			totalPower += cardsPower;
 			return totalPower;
 		}
 	}

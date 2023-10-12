@@ -1,4 +1,5 @@
-﻿using MarvelSnap;
+﻿using System.Text;
+using MarvelSnap;
 
 namespace Program;
 
@@ -15,9 +16,13 @@ public partial class Program
 		{
 			if (game.GetGameStatus() == GameStatus.Ongoing) 
 			{
+				List<Arena> arenas = game.GetListOfArenas();
+				List<Player> players = game.GetPlayers();
 				Player player = game.GetPlayerTurn();
 				int playerEnergy = game.GetCurrentEnergy(player);
 				Console.WriteLine();
+				Console.WriteLine($"{arenas[0].GetTotalPower(players[1])} {arenas[1].GetTotalPower(players[1])} {arenas[2].GetTotalPower(players[1])} ({players[1].Name})");
+				Console.WriteLine($"{arenas[0].GetTotalPower(players[0])} {arenas[1].GetTotalPower(players[0])} {arenas[2].GetTotalPower(players[0])} ({players[0].Name})");
 				Console.WriteLine($"Player: {player.Name} Energy: {playerEnergy} Turn: {game.Turn}/{game.MaxTurn}");
 				ChooseAction(out int action);
 				switch (action) 
@@ -26,13 +31,10 @@ public partial class Program
 						DisplayPutCard(game, player);
 						break;
 					case 2:
-						DisplayTakeCard(game, player); // todo
+						DisplayTakeCard(game, player);
 						break;
 					case 3:
 						game.EndTurn(player);
-						bool status = game.TryGetNextPlayer(out Player? nextPlayer);
-						if (status) game.SetPlayerTurn(nextPlayer);
-						game.NextTurn();
 						break;
 				}
 			}
@@ -104,6 +106,7 @@ public partial class Program
 				foreach (var card in handCards) 
 				{
 					Console.WriteLine($"{number}. {card?.Name} (Cost: {card?.GetCurrentEnergyCost(player.Id)} - Power: {card?.GetCurrentPower(player.Id)})");
+					Console.WriteLine($"   {card?.Description}");
 					number++;
 				}
 				Console.WriteLine();
@@ -156,7 +159,8 @@ public partial class Program
 						{
 							Console.WriteLine("Arena is full!");
 							Thread.Sleep(1000);
-						} 
+						}
+						
 						break;
 					}
 					else 
@@ -198,8 +202,19 @@ public partial class Program
 				int number = 1;
 				foreach (var card in arenaCards[player])
 				{
-					Console.WriteLine($"{number}. ({card.Location}) {card.Name}");
-					number++;
+					if (!card.IsRevealed) 
+					{
+						Console.WriteLine($"{number}. ({card.Location}) {card.Name}");
+						number++;
+					}
+				}
+				
+				if (number == 1) 
+				{
+					Console.Clear();
+					Console.WriteLine("There is no card(s) that can be taken!");
+					Thread.Sleep(1000);
+					break;
 				}
 
 				Console.WriteLine();
@@ -209,7 +224,9 @@ public partial class Program
 
 				if (status && input >= 1 && input <= arenaCards[player].Count)
 				{
-					game.TakeCardFromArena(player, arenaCards[player][input - 1].Location, arenaCards[player][input - 1]);
+					bool takeCardStatus = game.TakeCardFromArena(player, arenaCards[player][input - 1].Location, arenaCards[player][input - 1]);
+					Console.Write("Take card: " + takeCardStatus);
+					Thread.Sleep(1000);
 					Console.Clear();
 					break;
 				}
@@ -237,13 +254,14 @@ public partial class Program
 		List<Player> players = game.GetPlayers();
 		
 		Console.WriteLine("Following are current cards in each location.");
+		Console.WriteLine();
 		
-		foreach (var location in locations) 
+		for (int i = 0; i < 3; i++)
 		{
-			Console.WriteLine(location.IsRevealed ? location.Name : "(Unrevealed)");
+			Console.WriteLine(locations[i].IsRevealed ? locations[i].Name : "(Unrevealed)");
 			foreach (var player in players) 
 			{
-				List<CharacterCard> arenaCards = game.GetArenaCards(player, location);
+				List<CharacterCard> arenaCards = game.GetArenaCards(player, locations[i]);
 				if (arenaCards.Count == 0) Console.WriteLine($"({player.Name}) (Empty)");
 				else 
 				{

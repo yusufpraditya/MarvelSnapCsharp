@@ -27,13 +27,20 @@ public class OnslaughtsCitadel : LocationCard
 	{
 		List<Player> players = controller.GetPlayers();
 		Dictionary<Player, List<CharacterCard>> playerCardsInArena = controller.GetArenaCardsForEachPlayer();
+		Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
 		
 		foreach (var p in players) 
 		{
 			foreach (var card in playerCardsInArena[p]) 
 			{
-				card.IsOngoingEffectActivated = false;
-				card.Ongoing(p, controller);
+				if (arenas[card.Location].Location == this) 
+				{
+					if (card.OngoingEffectActivationCount < CharacterCard.MaxOngoingEffectActivation) {
+						card.IsOngoingEffectActivated = false;
+						card.Ongoing(p, controller);
+					}
+						
+				}
 			}
 		}
 	}

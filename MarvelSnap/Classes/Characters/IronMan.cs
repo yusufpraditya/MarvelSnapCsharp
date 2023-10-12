@@ -3,6 +3,8 @@
 namespace MarvelSnap;
 public class IronMan : CharacterCard
 {
+	private int _buffId = 0;
+
 	public IronMan(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
 		
@@ -28,7 +30,11 @@ public class IronMan : CharacterCard
 		if (!IsOngoingEffectActivated) 
 		{
 			IsOngoingEffectActivated = true;
-			// TODO
+			_buffId = controller.GetLatestArenaBuffId(player, Location) + 1;
+			Buff buff = new(_buffId, 2, BuffType.Power, BuffOperation.Multiply);
+			controller.AddPowerBuffToArena(player.Id, Location, buff);
+			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
+			controller.NotifyArenaPowerChanged(player, arenas[Location]);
 		}
 	}
 	

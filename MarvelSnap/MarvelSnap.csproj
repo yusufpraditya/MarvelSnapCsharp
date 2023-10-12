@@ -6,9 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
   </ItemGroup>
 </Project>

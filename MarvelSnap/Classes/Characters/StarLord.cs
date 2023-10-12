@@ -4,7 +4,6 @@ namespace MarvelSnap;
 
 public class StarLord : CharacterCard
 {
-	private int _buffId = 0;
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
@@ -36,9 +35,10 @@ public class StarLord : CharacterCard
 				{
 					if (card.Location == Location) 
 					{
-						AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+						int buffId = GetLatestBuffId(player) + 1;
+						AddBuff(player.Id, new Buff(buffId, _BuffValue, _BuffType, _BuffOperation));
 						controller.NotifyPowerChanged(player, this);
-						_buffId += 1;
+						break;
 					}
 				}
 			}

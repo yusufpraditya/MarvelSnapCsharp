@@ -47,6 +47,7 @@ public class MisterFantastic : CharacterCard
 		if (!IsOngoingEffectActivated) 
 		{
 			IsOngoingEffectActivated = true;
+			OngoingEffectActivationCount++;
 			foreach (var arena in arenas) 
 			{
 				_buffId = arena.GetLatestBuffId(player) + 1;

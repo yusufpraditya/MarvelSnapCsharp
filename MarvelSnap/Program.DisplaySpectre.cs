@@ -15,6 +15,7 @@ public partial class Program
 	
 	static void DisplaySpectre(MarvelSnapGame game, Player player1, Player player2) 
 	{
+	
 		Console.CursorVisible = false;
 		game.SetPlayerName(player1, "Yusuf");
 		game.SetPlayerName(player2, "Praditya");
@@ -60,7 +61,8 @@ public partial class Program
 					else if (status == GameStatus.SelectLocation) 
 					{
 						_locationSelector = _locationSelector <= 0 ? 0 : _locationSelector - 1;
-						_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						if (locationCards[_locationSelector].IsRevealed)
+							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
 					}
 					break;
 				case ConsoleKey.RightArrow:
@@ -77,7 +79,8 @@ public partial class Program
 					else if (status == GameStatus.SelectLocation) 
 					{
 						_locationSelector = _locationSelector >= 2 ? 2 : _locationSelector + 1;
-						_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						if (locationCards[_locationSelector].IsRevealed)
+							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
 					}
 					break;
 				case ConsoleKey.Spacebar or ConsoleKey.Enter:
@@ -115,7 +118,8 @@ public partial class Program
 						_actionSelector = -1;
 						_characterSelector = -1;
 						_locationSelector = 0;
-						_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						if (locationCards[_locationSelector].IsRevealed)
+							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
 					}
 					else if (status == GameStatus.SelectLocation) 
 					{
@@ -199,105 +203,113 @@ public partial class Program
 		List<CharacterCard> arenaCards1Player2 = game.GetArenaCards(players[1], ArenaType.Arena1);
 		List<CharacterCard> arenaCards2Player2 = game.GetArenaCards(players[1], ArenaType.Arena2);
 		List<CharacterCard> arenaCards3Player2 = game.GetArenaCards(players[1], ArenaType.Arena3);
-		// Dictionary<Player, List<CharacterCard>> arenaCards = game.GetArenaCardsForEachPlayer();
-		// Dictionary<ArenaType, Dictionary<Player, List<CharacterCard>>> dict = new();
 		
-		// foreach (var card in arenaCards[player]) 
-		// {
-		// 	if (card.Location == ArenaType.Arena1) 
-		// 	{
-		// 		dict.TryAdd(card.Location, arenaCards);
-		// 	}
-		// }
+		List<StringBuilder> sb1 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb2 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb3 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb4 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb5 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb6 = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
 		
-		string[] arenaCardsArray1Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		string[] arenaCardsArray2Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		string[] arenaCardsArray3Player1 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		string[] arenaCardsArray1Player2 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		string[] arenaCardsArray2Player2 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		string[] arenaCardsArray3Player2 = new string[] { "(Empty)", "(Empty)", "(Empty)", "(Empty)" };
-		
-		for (int i = 0; i < arenaCards1Player1.Count; i++) 
+		for (int i = 0; i < arenaCards1Player1.Count; i++)
 		{
-			arenaCardsArray1Player1[i] = arenaCards1Player1[i].Name;
-		}
-		for (int i = 0; i < arenaCards2Player1.Count; i++) 
-		{
-			arenaCardsArray2Player1[i] = arenaCards2Player1[i].Name;
-		}
-		for (int i = 0; i < arenaCards3Player1.Count; i++) 
-		{
-			arenaCardsArray3Player1[i] = arenaCards3Player1[i].Name;
+			sb1[i].Clear();
+			sb1[i].AppendLine($"{arenaCards1Player1[i].BaseEnergyCost} {arenaCards1Player1[i].BasePower}");
+			sb1[i].AppendLine($"{arenaCards1Player1[i].Name}");
 		}
 		
-		for (int i = 0; i < arenaCards1Player2.Count; i++) 
+		for (int i = 0; i < arenaCards2Player1.Count; i++)
 		{
-			arenaCardsArray1Player2[i] = arenaCards1Player2[i].Name;
+			sb2[i].Clear();
+			sb2[i].AppendLine($"{arenaCards2Player1[i].BaseEnergyCost} {arenaCards2Player1[i].BasePower}");
+			sb2[i].AppendLine($"{arenaCards2Player1[i].Name}");
 		}
-		for (int i = 0; i < arenaCards2Player2.Count; i++) 
+		
+		for (int i = 0; i < arenaCards3Player1.Count; i++)
 		{
-			arenaCardsArray2Player2[i] = arenaCards2Player2[i].Name;
+			sb3[i].Clear();
+			sb3[i].AppendLine($"{arenaCards3Player1[i].BaseEnergyCost} {arenaCards3Player1[i].BasePower}");
+			sb3[i].AppendLine($"{arenaCards3Player1[i].Name}");
 		}
-		for (int i = 0; i < arenaCards3Player2.Count; i++) 
+		
+		for (int i = 0; i < arenaCards1Player2.Count; i++)
 		{
-			arenaCardsArray3Player2[i] = arenaCards3Player2[i].Name;
+			sb4[i].Clear();
+			sb4[i].AppendLine($"{arenaCards1Player2[i].BaseEnergyCost} {arenaCards1Player2[i].BasePower}");
+			sb4[i].AppendLine($"{arenaCards1Player2[i].Name}");
+		}
+		
+		for (int i = 0; i < arenaCards2Player2.Count; i++)
+		{
+			sb5[i].Clear();
+			sb5[i].AppendLine($"{arenaCards2Player2[i].BaseEnergyCost} {arenaCards2Player2[i].BasePower}");
+			sb5[i].AppendLine($"{arenaCards2Player2[i].Name}");
+		}
+		
+		for (int i = 0; i < arenaCards3Player2.Count; i++)
+		{
+			sb6[i].Clear();
+			sb6[i].AppendLine($"{arenaCards3Player2[i].BaseEnergyCost} {arenaCards3Player2[i].BasePower}");
+			sb6[i].AppendLine($"{arenaCards3Player2[i].Name}");
 		}
 		
 		var arenaCards1Player1Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray1Player1[0]).Footer(arenaCardsArray1Player1[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray1Player1[2]).Footer(arenaCardsArray1Player1[3]).Centered());
+			.AddColumn(new TableColumn(sb1[0].ToString()).Footer(sb1[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb1[2].ToString()).Footer(sb1[3].ToString()).Centered());
 		
 		var arenaCards2Player1Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray2Player1[0]).Footer(arenaCardsArray2Player1[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray2Player1[2]).Footer(arenaCardsArray2Player1[3]).Centered());
+			.AddColumn(new TableColumn(sb2[0].ToString()).Footer(sb2[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb2[2].ToString()).Footer(sb2[3].ToString()).Centered());
 			
 		var arenaCards3Player1Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray3Player1[0]).Footer(arenaCardsArray3Player1[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray3Player1[2]).Footer(arenaCardsArray3Player1[3]).Centered());
+			.AddColumn(new TableColumn(sb3[0].ToString()).Footer(sb3[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb3[2].ToString()).Footer(sb3[3].ToString()).Centered());
 			
 		var arenaCards1Player2Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray1Player2[0]).Footer(arenaCardsArray1Player2[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray1Player2[2]).Footer(arenaCardsArray1Player2[3]).Centered());
+			.AddColumn(new TableColumn(sb4[0].ToString()).Footer(sb4[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb4[2].ToString()).Footer(sb4[3].ToString()).Centered());
 		
 		var arenaCards2Player2Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray2Player2[0]).Footer(arenaCardsArray2Player2[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray2Player2[2]).Footer(arenaCardsArray2Player2[3]).Centered());
+			.AddColumn(new TableColumn(sb5[0].ToString()).Footer(sb5[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb5[2].ToString()).Footer(sb5[3].ToString()).Centered());
 			
 		var arenaCards3Player2Table = new Table()
 			.Centered()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.Cyan1)
-			.AddColumn(new TableColumn(arenaCardsArray3Player2[0]).Footer(arenaCardsArray3Player2[1]).Centered())
-			.AddColumn(new TableColumn(arenaCardsArray3Player2[2]).Footer(arenaCardsArray3Player2[3]).Centered());
+			.AddColumn(new TableColumn(sb6[0].ToString()).Footer(sb6[1].ToString()).Centered())
+			.AddColumn(new TableColumn(sb6[2].ToString()).Footer(sb6[3].ToString()).Centered());
+		
+		List<LocationCard> locations = game.GetLocations();
 		
 		StringBuilder sbLocation1 = new();
 		sbLocation1.AppendLine();
-		sbLocation1.AppendLine("Onslaught's Citadel");
+		sbLocation1.AppendLine(locations[0].IsRevealed ? locations[0].Name : "(Unrevealed)");
 		sbLocation1.Append($"[[{Cursor(_locationSelector, 0)}]]");
 		
 		StringBuilder sbLocation2 = new();
 		sbLocation2.AppendLine();
-		sbLocation2.AppendLine("Dream Dimension");
+		sbLocation2.AppendLine(locations[1].IsRevealed ? locations[1].Name : "(Unrevealed)");
 		sbLocation2.Append($"[[{Cursor(_locationSelector, 1)}]]");
 		
 		StringBuilder sbLocation3 = new();
 		sbLocation3.AppendLine();
-		sbLocation3.AppendLine("Kyln");
+		sbLocation3.AppendLine(locations[2].IsRevealed ? locations[2].Name : "(Unrevealed)");
 		sbLocation3.Append($"[[{Cursor(_locationSelector, 2)}]]");
 		
 		var location1 = new Panel(sbLocation1.ToString());
