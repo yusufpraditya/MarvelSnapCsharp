@@ -11,14 +11,15 @@ public partial class Program
 	private static int _characterSelector = -1;
 	private static int _selectedCard = -1;
 	private static string _cardInfo = "";
+	private static bool _isTakeCard = false;
 	private static ConsoleKey key;
 	
 	static void DisplaySpectre(MarvelSnapGame game, Player player1, Player player2) 
 	{
 	
 		Console.CursorVisible = false;
-		game.SetPlayerName(player1, "Yusuf");
-		game.SetPlayerName(player2, "Praditya");
+		game.SetPlayerName(player1, "Player 1");
+		game.SetPlayerName(player2, "Player 2");
 		game.Start();
 		game.SetGameStatus(GameStatus.SelectAction);
 		
@@ -33,6 +34,8 @@ public partial class Program
 			AnsiConsole.Write(CardInfo());
 			AnsiConsole.Write(ActionInput());
 			
+			if (game.Turn > game.MaxTurn) game.SetGameStatus(GameStatus.GameEnded);
+			
 			task.Wait();
 		}
 	}
@@ -42,7 +45,9 @@ public partial class Program
 		await Task.Run(() => 
 		{
 			GameStatus status = game.GetGameStatus();
+			List<Arena> arenas = game.GetListOfArenas();
 			List<CharacterCard> handCards = game.GetHandCards(player);
+			List<CharacterCard> arenaCards = game.GetArenaCardsForEachPlayer()[player];
 			List<LocationCard> locationCards = game.GetLocations();
 			key = Console.ReadKey(true).Key;
 			switch (key) 
@@ -56,13 +61,18 @@ public partial class Program
 					else if (status == GameStatus.SelectCharacter) 
 					{
 						_characterSelector = _characterSelector <= 0 ? 0 : _characterSelector - 1;
-						_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
+						if (_isTakeCard)
+							_cardInfo = arenaCards[_characterSelector].Name + ": " + arenaCards[_characterSelector].Description;
+						else
+							_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
 					}
 					else if (status == GameStatus.SelectLocation) 
 					{
 						_locationSelector = _locationSelector <= 0 ? 0 : _locationSelector - 1;
 						if (locationCards[_locationSelector].IsRevealed)
 							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						else
+							_cardInfo =  "";
 					}
 					break;
 				case ConsoleKey.RightArrow:
@@ -73,38 +83,59 @@ public partial class Program
 					} 
 					else if (status == GameStatus.SelectCharacter) 
 					{
-						_characterSelector = _characterSelector >= handCards.Count - 1 ? handCards.Count - 1 : _characterSelector + 1;
-						_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
+						if (_isTakeCard) 
+						{
+							_characterSelector = _characterSelector >= arenaCards.Count - 1 ? arenaCards.Count - 1 : _characterSelector + 1;
+							_cardInfo = arenaCards[_characterSelector].Name + ": " + arenaCards[_characterSelector].Description;
+						}
+							
+						else 
+						{
+							_characterSelector = _characterSelector >= handCards.Count - 1 ? handCards.Count - 1 : _characterSelector + 1;
+							_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
+						}
+							
 					}
 					else if (status == GameStatus.SelectLocation) 
 					{
 						_locationSelector = _locationSelector >= 2 ? 2 : _locationSelector + 1;
 						if (locationCards[_locationSelector].IsRevealed)
 							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						else
+							_cardInfo =  "";
 					}
 					break;
 				case ConsoleKey.Spacebar or ConsoleKey.Enter:
 					if (status == GameStatus.SelectAction) 
 					{
-						if (_actionSelector == 0 || _actionSelector == 1) 
+						if (_actionSelector == 0) 
 						{
+							_isTakeCard = false;
+							game.SetGameStatus(GameStatus.SelectCharacter);
+						}
+						else if (_actionSelector == 1) 
+						{
+							_isTakeCard = true;
 							game.SetGameStatus(GameStatus.SelectCharacter);
 						}
 						else 
 						{
-							// End Turn
 							game.EndTurn(player);
-							bool nextPlayerStatus = game.TryGetNextPlayer(out Player? nextPlayer);
-							if (nextPlayerStatus) game.SetPlayerTurn(nextPlayer);
-							game.NextTurn();
 						}
 						
-						if (handCards.Count > 0 || _actionSelector == 2) 
+						if (handCards.Count > 0 || arenaCards.Count > 0 && _actionSelector != 2) 
 						{
 							_actionSelector = -1;
 							_characterSelector = 0;
 							_locationSelector = -1;
 							_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
+						}
+						else if (_actionSelector == 2) 
+						{
+							_actionSelector = -1;
+							_characterSelector = -1;
+							_locationSelector = -1;
+							_cardInfo = "";
 						}
 						else 
 						{
@@ -113,23 +144,49 @@ public partial class Program
 					} 
 					else if (status == GameStatus.SelectCharacter) 
 					{
-						game.SetGameStatus(GameStatus.SelectLocation);
 						_selectedCard = _characterSelector;
-						_actionSelector = -1;
-						_characterSelector = -1;
-						_locationSelector = 0;
-						if (locationCards[_locationSelector].IsRevealed)
-							_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+						if (_isTakeCard) 
+						{
+							game.TakeCardFromArena(player, arenaCards[_selectedCard].Location, arenaCards[_selectedCard]);
+							game.SetGameStatus(GameStatus.SelectAction);
+							_actionSelector = 0;
+							_characterSelector = -1;
+							_locationSelector = -1;
+						}
+							
+						else 
+						{
+							if (game.GetCurrentEnergy(player) >= handCards[_selectedCard].GetCurrentEnergyCost(player.Id)) 
+							{
+								game.SetGameStatus(GameStatus.SelectLocation);
+								_actionSelector = -1;
+								_characterSelector = -1;
+								_locationSelector = 0;
+								if (locationCards[_locationSelector].IsRevealed)
+									_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+								else
+									_cardInfo =  "";
+							}
+						}
 					}
 					else if (status == GameStatus.SelectLocation) 
 					{
-						game.PutCardInArena(player, (ArenaType) _locationSelector, handCards[_selectedCard]);
-						game.SetGameStatus(GameStatus.SelectAction);
-						_locationSelector = -1;
-						_actionSelector = 0;
-						_characterSelector = -1;
-						_cardInfo = "";
+						if (game.GetCurrentEnergy(player) >= handCards[_selectedCard].GetCurrentEnergyCost(player.Id)) 
+						{
+							if (arenas[_locationSelector].IsAvailable()) 
+							{
+								game.PutCardInArena(player, (ArenaType) _locationSelector, handCards[_selectedCard]);
+								game.SetGameStatus(GameStatus.SelectAction);
+								_locationSelector = -1;
+								_actionSelector = 0;
+								_characterSelector = -1;
+								_cardInfo = "";
+							}
+						}
 					} 
+					break;
+				case ConsoleKey.Escape:
+					game.SetGameStatus(GameStatus.SelectAction);
 					break;
 			}
 		});
@@ -158,20 +215,38 @@ public partial class Program
 		Table characters = new Table()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.White)
-			.Title(player.Name + "'s hand")
-			.Caption("Turn: " + game.Turn.ToString() + "/" + game.MaxTurn.ToString())
-			.Centered();
+			.Caption("Energy: " + game.GetCurrentEnergy(player) +  " Turn: " + game.Turn.ToString() + "/" + game.MaxTurn.ToString())
+			.Centered().Expand();
 		List<CharacterCard> handCards = game.GetHandCards(player);
+		Dictionary<Player, List<CharacterCard>> arenaCards = game.GetArenaCardsForEachPlayer();
 		
-		for (int i = 0; i < handCards.Count; i++) 
+		if (_isTakeCard) 
 		{
-			StringBuilder sb = new StringBuilder();
-			sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
-			sb.Append(handCards[i].Name);
-			characters.AddColumn(new TableColumn(sb.ToString()).Centered());
+			for(int i = 0; i < arenaCards[player].Count; i++) 
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.AppendLine($"[blue]{arenaCards[player][i].GetCurrentEnergyCost(player.Id)}[/] [darkorange]{arenaCards[player][i].GetCurrentPower(player.Id)}[/]");
+				sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
+				sb.Append(arenaCards[player][i].Name);
+				characters.AddColumn(new TableColumn(sb.ToString()).Centered());
+			}
+			if (arenaCards[player].Count == 0) characters.AddColumn(new TableColumn("(Empty)").Centered());
+			characters.Title(player.Name + "'s arena cards");
 		}
-		
-		if (handCards.Count == 0) characters.AddColumn(new TableColumn("(Empty)").Centered());
+		else 
+		{
+			for (int i = 0; i < handCards.Count; i++) 
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.AppendLine($"[blue]{handCards[i].GetCurrentEnergyCost(player.Id)}[/] [darkorange]{handCards[i].GetCurrentPower(player.Id)}[/]");
+				sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
+				sb.Append(handCards[i].Name);
+				characters.AddColumn(new TableColumn(sb.ToString()).Centered());
+			}
+			
+			if (handCards.Count == 0) characters.AddColumn(new TableColumn("(Empty)").Centered());
+			characters.Title(player.Name + "'s hand cards");
+		}
 		
 		Table table = new Table()
 			.Border(TableBorder.Square)
@@ -214,42 +289,42 @@ public partial class Program
 		for (int i = 0; i < arenaCards1Player1.Count; i++)
 		{
 			sb1[i].Clear();
-			sb1[i].AppendLine($"{arenaCards1Player1[i].BaseEnergyCost} {arenaCards1Player1[i].BasePower}");
+			sb1[i].AppendLine($"[blue]{arenaCards1Player1[i].GetCurrentEnergyCost(players[0].Id)}[/] [darkorange]{arenaCards1Player1[i].GetCurrentPower(players[0].Id)}[/]");
 			sb1[i].AppendLine($"{arenaCards1Player1[i].Name}");
 		}
 		
 		for (int i = 0; i < arenaCards2Player1.Count; i++)
 		{
 			sb2[i].Clear();
-			sb2[i].AppendLine($"{arenaCards2Player1[i].BaseEnergyCost} {arenaCards2Player1[i].BasePower}");
+			sb2[i].AppendLine($"[blue]{arenaCards2Player1[i].GetCurrentEnergyCost(players[0].Id)}[/] [darkorange]{arenaCards2Player1[i].GetCurrentPower(players[0].Id)}[/]");
 			sb2[i].AppendLine($"{arenaCards2Player1[i].Name}");
 		}
 		
 		for (int i = 0; i < arenaCards3Player1.Count; i++)
 		{
 			sb3[i].Clear();
-			sb3[i].AppendLine($"{arenaCards3Player1[i].BaseEnergyCost} {arenaCards3Player1[i].BasePower}");
+			sb3[i].AppendLine($"[blue]{arenaCards3Player1[i].GetCurrentEnergyCost(players[0].Id)}[/] [darkorange]{arenaCards3Player1[i].GetCurrentPower(players[0].Id)}[/]");
 			sb3[i].AppendLine($"{arenaCards3Player1[i].Name}");
 		}
 		
 		for (int i = 0; i < arenaCards1Player2.Count; i++)
 		{
 			sb4[i].Clear();
-			sb4[i].AppendLine($"{arenaCards1Player2[i].BaseEnergyCost} {arenaCards1Player2[i].BasePower}");
+			sb4[i].AppendLine($"[blue]{arenaCards1Player2[i].GetCurrentEnergyCost(players[1].Id)}[/] [darkorange]{arenaCards1Player2[i].GetCurrentPower(players[1].Id)}[/]");
 			sb4[i].AppendLine($"{arenaCards1Player2[i].Name}");
 		}
 		
 		for (int i = 0; i < arenaCards2Player2.Count; i++)
 		{
 			sb5[i].Clear();
-			sb5[i].AppendLine($"{arenaCards2Player2[i].BaseEnergyCost} {arenaCards2Player2[i].BasePower}");
+			sb5[i].AppendLine($"[blue]{arenaCards2Player2[i].GetCurrentEnergyCost(players[1].Id)}[/] [darkorange]{arenaCards2Player2[i].GetCurrentPower(players[1].Id)}[/]");
 			sb5[i].AppendLine($"{arenaCards2Player2[i].Name}");
 		}
 		
 		for (int i = 0; i < arenaCards3Player2.Count; i++)
 		{
 			sb6[i].Clear();
-			sb6[i].AppendLine($"{arenaCards3Player2[i].BaseEnergyCost} {arenaCards3Player2[i].BasePower}");
+			sb6[i].AppendLine($"[blue]{arenaCards3Player2[i].GetCurrentEnergyCost(players[1].Id)}[/] [darkorange]{arenaCards3Player2[i].GetCurrentPower(players[1].Id)}[/]");
 			sb6[i].AppendLine($"{arenaCards3Player2[i].Name}");
 		}
 		
@@ -327,5 +402,24 @@ public partial class Program
 			.AddColumn(new TableColumn(arenaCards3Player2Table).Footer(arenaCards3Player1Table).Centered()) // Arena 3
 			.AddRow(Align.Center(location1), Align.Center(location2), Align.Center(location3));
 		return table.Expand();
+	}
+	
+	static void GameEndedSpectre(Player? player) 
+	{
+		if (player != null) 
+		{
+			AnsiConsole.Write(
+			new FigletText("Winner: " + player.Name)
+				.LeftJustified()
+				.Color(Color.Red).Centered());
+		}
+		else 
+		{
+			AnsiConsole.Write(
+			new FigletText("Game Draw!")
+				.LeftJustified()
+				.Color(Color.Red).Centered());
+		}
+		Thread.Sleep(5000);
 	}
 }

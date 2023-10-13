@@ -36,9 +36,12 @@ public class Elektra : CharacterCard
 				}
 			}
 			
-			int target = random.Next(0, targetCards.Count - 1);
-			controller.DestroyCard(opponent, targetCards[target]);
-			controller.NotifyCardDestroyed(player, this, targetCards[target]);
+			if (targetCards.Count > 0) 
+			{
+				int target = random.Next(0, targetCards.Count - 1);
+				controller.DestroyCard(opponent, targetCards[target]);
+				controller.NotifyCardDestroyed(player, this, targetCards[target]);
+			}
 		}
 	}
 	
