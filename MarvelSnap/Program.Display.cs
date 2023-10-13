@@ -4,7 +4,7 @@ using MarvelSnap;
 namespace Program;
 
 public partial class Program
-{
+{	
 	static void DisplayConsole(MarvelSnapGame game, Player player1, Player player2) 
 	{
 		Console.CursorVisible = false;

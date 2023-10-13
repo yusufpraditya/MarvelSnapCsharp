@@ -75,7 +75,7 @@ public class MarvelSnapGame
 		StarkTower starkTower = new(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
 		
 		_locations.Add(onslaughtsCitadel);
-		//_locations.Add(dreamDimension);
+		_locations.Add(dreamDimension);
 		_locations.Add(kyln);
 		_locations.Add(limbo);
 		_locations.Add(projectPegasus);

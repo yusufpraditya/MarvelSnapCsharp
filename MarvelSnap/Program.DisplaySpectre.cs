@@ -410,15 +410,13 @@ public partial class Program
 		{
 			AnsiConsole.Write(
 			new FigletText("Winner: " + player.Name)
-				.LeftJustified()
-				.Color(Color.Red).Centered());
+				.Color(Color.Cyan1).Centered());
 		}
 		else 
 		{
 			AnsiConsole.Write(
 			new FigletText("Game Draw!")
-				.LeftJustified()
-				.Color(Color.Red).Centered());
+				.Color(Color.Green).Centered());
 		}
 		Thread.Sleep(5000);
 	}
