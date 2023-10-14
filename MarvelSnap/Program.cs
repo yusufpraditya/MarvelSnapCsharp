@@ -12,7 +12,7 @@ public partial class Program
 		
 		Console.WriteLine("1. Built-in console");
 		Console.WriteLine("2. Spectre console");
-		Console.Write("Select console:");
+		Console.Write("Select console: ");
 		bool consoleStatus = int.TryParse(Console.ReadLine(), out int input);
 		
 		if (consoleStatus && input >= 1 && input <= 2) 

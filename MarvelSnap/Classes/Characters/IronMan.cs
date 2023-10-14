@@ -30,11 +30,11 @@ public class IronMan : CharacterCard
 		if (!IsOngoingEffectActivated) 
 		{
 			IsOngoingEffectActivated = true;
-			_buffId = controller.GetLatestArenaBuffId(player, Location) + 1;
+			_buffId = controller.GetLatestArenaBuffId(player, Arena) + 1;
 			Buff buff = new(_buffId, 2, BuffType.Power, BuffOperation.Multiply);
-			controller.AddPowerBuffToArena(player.Id, Location, buff);
+			controller.AddPowerBuffToArena(player.Id, Arena, buff);
 			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
-			controller.NotifyArenaPowerChanged(player, arenas[Location]);
+			controller.NotifyArenaPowerChanged(player, arenas[Arena]);
 		}
 	}
 	

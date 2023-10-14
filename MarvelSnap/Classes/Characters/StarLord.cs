@@ -33,7 +33,7 @@ public class StarLord : CharacterCard
 			{
 				if (card.CardTurn == CardTurn) 
 				{
-					if (card.Location == Location) 
+					if (card.Arena == Arena) 
 					{
 						int buffId = GetLatestBuffId(player) + 1;
 						AddBuff(player.Id, new Buff(buffId, _BuffValue, _BuffType, _BuffOperation));

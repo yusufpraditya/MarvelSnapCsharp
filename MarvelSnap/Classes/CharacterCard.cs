@@ -13,7 +13,7 @@ public class CharacterCard : Card
 	public bool IsOngoingEffectActivated { get; set; }
 	public int OngoingEffectActivationCount { get; set; } = 0;
 	public int CardTurn { get; set; }
-	public ArenaType Location { get; set; }
+	public ArenaType Arena { get; set; }
 	public const int MaxOngoingEffectActivation = 2; 
 	
 	public CharacterCard(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base((int)id, name, description)

@@ -35,7 +35,7 @@ public class StarkTower : LocationCard
 			{
 				foreach (var card in playerCardsInArena[p]) 
 				{
-					if (arenas[card.Location].Location == this) 
+					if (arenas[card.Arena].Location == this) 
 					{
 						int buffId = card.GetLatestBuffId(p) + 1;
 						Buff buff = new(buffId, 2, BuffType.Power, BuffOperation.Add);

@@ -204,7 +204,7 @@ public partial class Program
 				{
 					if (!card.IsRevealed) 
 					{
-						Console.WriteLine($"{number}. ({card.Location}) {card.Name}");
+						Console.WriteLine($"{number}. ({card.Arena}) {card.Name}");
 						number++;
 					}
 				}
@@ -224,7 +224,7 @@ public partial class Program
 
 				if (status && input >= 1 && input <= arenaCards[player].Count)
 				{
-					bool takeCardStatus = game.TakeCardFromArena(player, arenaCards[player][input - 1].Location, arenaCards[player][input - 1]);
+					bool takeCardStatus = game.TakeCardFromArena(player, arenaCards[player][input - 1].Arena, arenaCards[player][input - 1]);
 					Console.Write("Take card: " + takeCardStatus);
 					Thread.Sleep(1000);
 					Console.Clear();

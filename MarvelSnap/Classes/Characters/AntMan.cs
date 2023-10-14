@@ -31,7 +31,7 @@ public class AntMan : CharacterCard
 
 	public override void Ongoing(Player player, MarvelSnapGame controller)
 	{
-		List<CharacterCard> arenaCards = controller.GetArenaCards(player, Location);
+		List<CharacterCard> arenaCards = controller.GetArenaCards(player, Arena);
 
 		if (!IsOngoingEffectActivated)
 		{

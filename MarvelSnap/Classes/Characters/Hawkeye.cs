@@ -29,7 +29,7 @@ public class Hawkeye : CharacterCard
 		{
 			IsRevealed = true;
 			CardTurn = controller.Turn;
-			List<CharacterCard> arenaCards = controller.GetArenaCards(player, Location);
+			List<CharacterCard> arenaCards = controller.GetArenaCards(player, Arena);
 			_cardCount = arenaCards.Count;
 			controller.AddFutureTask(player.Id, new FutureTask(0, controller.Turn + 1) { Action = FutureTask });
 			controller.NotifyCardRevealed(player, this);
@@ -40,7 +40,7 @@ public class Hawkeye : CharacterCard
 	{
 		if (_controller != null && _player != null) 
 		{
-			List<CharacterCard> arenaCards = _controller.GetArenaCards(_player, Location);
+			List<CharacterCard> arenaCards = _controller.GetArenaCards(_player, Arena);
 			
 			if (arenaCards.Count > _cardCount) 
 			{

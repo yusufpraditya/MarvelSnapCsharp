@@ -33,7 +33,7 @@ public class OnslaughtsCitadel : LocationCard
 		{
 			foreach (var card in playerCardsInArena[p]) 
 			{
-				if (arenas[card.Location].Location == this) 
+				if (arenas[card.Arena].Location == this) 
 				{
 					if (card.OngoingEffectActivationCount < CharacterCard.MaxOngoingEffectActivation) {
 						card.IsOngoingEffectActivated = false;

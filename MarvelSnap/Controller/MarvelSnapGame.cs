@@ -222,7 +222,6 @@ public class MarvelSnapGame
 	
 	public bool NextTurn() 
 	{
-		
 		if (Turn <= MaxTurn && PlayersHavePlayed()) 
 		{
 			Turn += 1;
@@ -484,9 +483,9 @@ public class MarvelSnapGame
 	
 	public bool DestroyCard(Player player, CharacterCard card) 
 	{
-		if (HasCardInArena(player, card.Location, card) && card.IsRevealed) 
+		if (HasCardInArena(player, card.Arena, card) && card.IsRevealed) 
 		{
-			bool success = _dictArenas[card.Location].TakeCard(player, card);
+			bool success = _dictArenas[card.Arena].TakeCard(player, card);
 			if (success) 
 			{
 				_playerCardsInArena[player].Remove(card);
@@ -505,6 +504,16 @@ public class MarvelSnapGame
 	public List<Arena> GetListOfArenas() 
 	{
 		return _listArenas;
+	}
+	
+	public List<CharacterCard> GetArenaCards(Player player) 
+	{
+		List<CharacterCard> arenaCards = new();
+		foreach (var kvp in _dictArenas) 
+		{
+			arenaCards = arenaCards.Concat(_dictArenas[kvp.Key].GetCards(player)).ToList();
+		}
+		return arenaCards;
 	}
 	
 	public List<CharacterCard> GetArenaCards(Player player, ArenaType type) 
@@ -537,7 +546,7 @@ public class MarvelSnapGame
 			if (success) 
 			{
 				_playerCardsInArena[player].Add(card);
-				card.Location = type;
+				card.Arena = type;
 				card.CardTurn = Turn;
 				RemoveCardInHand(player, card);
 				return true;

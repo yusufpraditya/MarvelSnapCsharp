@@ -52,7 +52,7 @@ public class MisterFantastic : CharacterCard
 			{
 				_buffId = arena.GetLatestBuffId(player) + 1;
 				Buff buff = new(_buffId, _BuffValue, _BuffType, _BuffOperation);
-				if (Location == arena.Id) 
+				if (Arena == arena.Id) 
 				{
 					if (arena.Location == locations[0]) 
 					{
