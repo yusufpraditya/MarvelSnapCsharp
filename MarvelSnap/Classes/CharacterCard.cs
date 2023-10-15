@@ -11,6 +11,7 @@ public class CharacterCard : Card
 	public bool HasAbility { get; set; }
 	public bool HasMoved { get; set; }
 	public bool IsOngoingEffectActivated { get; set; }
+	public bool IsDestroyed { get; set; }
 	public int OngoingEffectActivationCount { get; set; } = 0;
 	public int CardTurn { get; set; }
 	public ArenaType Arena { get; set; }
@@ -71,26 +72,24 @@ public class CharacterCard : Card
 		{
 			return BaseEnergyCost;
 		}
-		if (_buffs[ownerId].Count > 0) 
+		
+		var buffs = _buffs[ownerId].Where(buff => buff.Type == BuffType.Energy);
+		
+		int energyCost = 0;
+		foreach (var buff in buffs) 
 		{
-			int energyCost = 0;
-			foreach (var buff in _buffs[ownerId]) 
+			if (energyCost > 0) 
 			{
-				if (buff.Type == BuffType.Energy) 
-				{
-					if (energyCost > 0) 
-					{
-						energyCost += buff.Apply(0);
-					}
-					else 
-					{
-						energyCost += buff.Apply(BaseEnergyCost);
-					}
-				}
+				energyCost += buff.Apply(0);
 			}
-			return energyCost;
+			else 
+			{
+				energyCost += buff.Apply(BaseEnergyCost);
+			}
 		}
-		else return BaseEnergyCost;
+		
+		if (energyCost > 0) return energyCost;
+		return BaseEnergyCost;
 	}
 	
 	public void AddBuff(int ownerId, Buff buff) 

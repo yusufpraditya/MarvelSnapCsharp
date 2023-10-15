@@ -23,12 +23,11 @@ public class Elektra : CharacterCard
 			controller.NotifyCardRevealed(player, this);
 			
 			Player opponent = controller.GetOpponent(player);
-			Dictionary<Player, List<CharacterCard>> arenaCards = controller.GetArenaCardsForEachPlayer();
-			
+			List<CharacterCard> arenaCards = controller.GetArenaCards(opponent, Arena);
 			List<CharacterCard> targetCards = new();
 			Random random = new();
 
-			foreach (var card in arenaCards[opponent]) 
+			foreach (var card in arenaCards)
 			{
 				if (card.IsRevealed && card.BaseEnergyCost == 1) 
 				{

@@ -1,25 +1,24 @@
 ﻿using MarvelSnap;
+using Spectre.Console;
+
 namespace Program;
 
 public partial class Program 
 {
-	private int _consoleSelector = -1;
-	
 	static void Main() 
 	{
 		Console.Clear();
 		bool isSpectre = false;
 		
-		Console.WriteLine("1. Built-in console");
-		Console.WriteLine("2. Spectre console");
-		Console.Write("Select console: ");
-		bool consoleStatus = int.TryParse(Console.ReadLine(), out int input);
+		string[] choices = new[] { "Built-in console", "Spectre console" };
 		
-		if (consoleStatus && input >= 1 && input <= 2) 
-		{
-			if (input == 1) isSpectre = false;
-			else isSpectre = true;
-		}
+		var choice = AnsiConsole.Prompt(
+			new SelectionPrompt<string>()
+				.Title("Select [green]console[/]")
+				.AddChoices(choices));
+		
+		if (choice == choices[0]) isSpectre = false;
+		else isSpectre = true;
 		
 		Player player1 = new(1);
 		Player player2 = new(2);

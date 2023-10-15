@@ -245,11 +245,7 @@ public class MarvelSnapGame
 			_energySpent = 0;
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
-			Player? winner = GetPlayerWinner();
-			if (winner != null) 
-				SetPlayerTurn(winner);
-			else
-				SetPlayerTurn(_player1);
+			SetPlayerTurn(_player1);
 			DrawCard(_player1);
 			DrawCard(_player2);
 			return true;
@@ -488,6 +484,8 @@ public class MarvelSnapGame
 			bool success = _dictArenas[card.Arena].TakeCard(player, card);
 			if (success) 
 			{
+				card.IsDestroyed = true;
+				card.OnDestroyed(player, this);
 				_playerCardsInArena[player].Remove(card);
 				_destroyedCards[player].Add(card);
 				return true;
@@ -577,20 +575,43 @@ public class MarvelSnapGame
 		else return false;
 	}
 	
-	public Player? GetPlayerWinner() 
+	public Player? GetPlayerWinner()
 	{
-		List<Player?> playerWinner = new();
+		Dictionary<Player, List<int>> playerScores = new()
+		{
+			{ _player1, new() },
+			{ _player2, new() }
+		};
+		
+		List<int> result = new();
+
 		int player1Count = 0;
 		int player2Count = 0;
-		foreach (var arena in _listArenas) 
+		
+		foreach (var player in _players) 
 		{
-			playerWinner.Add(arena.GetWinner());
+			foreach (var arena in _listArenas) 
+			{
+				playerScores[player].Add(arena.GetTotalPower(player));
+			}
 		}
-		foreach (var player in playerWinner) 
+		
+		result.Add(playerScores[_player1][0] - playerScores[_player2][0]);
+		result.Add(playerScores[_player1][1] - playerScores[_player2][1]);
+		result.Add(playerScores[_player1][2] - playerScores[_player2][2]);
+		
+		foreach (var score in result) 
 		{
-			if (player == _player1) player1Count += 1;
-			else if (player == _player2) player2Count += 1;
+			if (score > 0) player1Count += 1;
+			else if (score < 0) player2Count += 1;
 		}
+		
+		if (player1Count == player2Count) 
+		{
+			if (result.Sum() > 0) player1Count += 1;
+			else if (result.Sum() < 0) player2Count += 1;
+		}
+		
 		if (player1Count > player2Count) return _player1;
 		else if (player2Count > player1Count) return _player2;
 		else return null;

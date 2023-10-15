@@ -108,7 +108,7 @@ public partial class Program
 							game.EndTurn(player);
 						}
 						
-						if (handCards.Count > 0 || arenaCards.Count > 0 && _actionSelector != 2) 
+						if ((handCards.Count > 0 || arenaCards.Count > 0) && _actionSelector != 2) 
 						{
 							SetCharacterSelector();
 						}
@@ -212,19 +212,19 @@ public partial class Program
 		Table characters = new Table()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.White)
-			.Caption($"[white]Energy: {game.GetCurrentEnergy(player)} Turn: {game.Turn}/{game.MaxTurn}[/]");
+			.Caption($"[blue]Energy: {game.GetCurrentEnergy(player)}[/] [white]Turn: {game.Turn}/{game.MaxTurn}[/]");
 		List<CharacterCard> handCards = game.GetHandCards(player);
 		Dictionary<Player, List<CharacterCard>> arenaCards = game.GetArenaCardsForEachPlayer();
 		
 		if (_isTakeCard) 
 		{
 			arenaCards[player] = arenaCards[player].Where(card => !card.IsRevealed).ToList();
-			characters = CardsTable(characters, player, arenaCards[player]);
+			characters = CardsTable(game, characters, player, arenaCards[player]);
 			characters.Title($"[chartreuse1]{player.Name}'s arena cards[/]");
 		}
 		else 
 		{
-			characters = CardsTable(characters, player, handCards);
+			characters = CardsTable(game, characters, player, handCards);
 			characters.Title($"[yellow2]{player.Name}'s hand cards[/]");
 		}
 		
@@ -243,14 +243,25 @@ public partial class Program
 		return table.Centered();
 	}
 	
-	static Table CardsTable(Table table, Player player, List<CharacterCard> cards) 
+	static Table CardsTable(MarvelSnapGame game, Table table, Player player, List<CharacterCard> cards) 
 	{
 		for(int i = 0; i < cards.Count; i++) 
 		{
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine($"[blue]{cards[i].GetCurrentEnergyCost(player.Id)}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
-			sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
-			sb.Append(cards[i].Name);
+			if (game.GetCurrentEnergy(player) < cards[i].GetCurrentEnergyCost(player.Id)) 
+			{
+				sb.AppendLine($"[grey]{cards[i].GetCurrentEnergyCost(player.Id)}[/] [grey]{cards[i].GetCurrentPower(player.Id)}[/]");
+				sb.AppendLine($"[grey][[{Cursor(_characterSelector, i)}]][/]");
+				sb.Append($"[grey]{cards[i].Name}[/]");
+			}
+				
+			else 
+			{
+				sb.AppendLine($"[blue]{cards[i].GetCurrentEnergyCost(player.Id)}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
+				sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
+				sb.Append(cards[i].Name);
+			}
+			
 			table.AddColumn(new TableColumn(sb.ToString()).Centered());
 		}
 		if (cards.Count == 0) table.AddColumn(new TableColumn("(Empty)").Centered());
@@ -266,14 +277,14 @@ public partial class Program
 		if (_characterSelector >= 0) 
 		{
 			if (_isTakeCard && arenaCards.Count > 0)
-				_cardInfo = arenaCards[_characterSelector].Name + ": " + arenaCards[_characterSelector].Description;
+				_cardInfo = arenaCards[_characterSelector].Name + "\n" + arenaCards[_characterSelector].Description;
 			if (!_isTakeCard && handCards.Count > 0)
-				_cardInfo = handCards[_characterSelector].Name + ": " + handCards[_characterSelector].Description;
+				_cardInfo = handCards[_characterSelector].Name + "\n" + handCards[_characterSelector].Description;
 		}
 		if (_locationSelector >= 0) 
 		{
 			if (locationCards[_locationSelector].IsRevealed)
-				_cardInfo = locationCards[_locationSelector].Name + ": " + locationCards[_locationSelector].Description;
+				_cardInfo = locationCards[_locationSelector].Name + "\n" + locationCards[_locationSelector].Description;
 			else
 				_cardInfo =  "";
 		}
@@ -281,7 +292,7 @@ public partial class Program
 			_cardInfo = "";
 			
 		StringBuilder sb = new StringBuilder();
-		sb.AppendLine("Card Info");
+		sb.AppendLine("[yellow]Card Info[/]");
 		sb.Append(_cardInfo);
 		Table table = new Table()
 			.Border(TableBorder.Square)
@@ -350,11 +361,24 @@ public partial class Program
 	static string GetLocationInfo(MarvelSnapGame game, LocationCard location, int selector) 
 	{
 		List<Player> players = game.GetPlayers();
+		List<Arena> arenas = game.GetListOfArenas();
 		StringBuilder sb = new();
-		sb.AppendLine(game.GetTotalPowerOfArena(players[1], (ArenaType) selector).ToString());
-		sb.AppendLine(location.IsRevealed ? location.Name : "(Unrevealed)");
-		sb.AppendLine($"[[{Cursor(_locationSelector, selector)}]]");
-		sb.Append(game.GetTotalPowerOfArena(players[0], (ArenaType) selector).ToString());
+		
+		if (arenas[selector].IsAvailable()) 
+		{
+			sb.AppendLine(game.GetTotalPowerOfArena(players[1], (ArenaType) selector).ToString());
+			sb.AppendLine(location.IsRevealed ? location.Name : "(Unrevealed)");
+			sb.AppendLine($"[[{Cursor(_locationSelector, selector)}]]");
+			sb.Append(game.GetTotalPowerOfArena(players[0], (ArenaType) selector).ToString());
+		}
+		else 
+		{
+			sb.AppendLine($"[grey]{game.GetTotalPowerOfArena(players[1], (ArenaType) selector)}[/]");
+			sb.AppendLine($"[grey]{(location.IsRevealed ? location.Name : "(Unrevealed)")}[/]");
+			sb.AppendLine($"[grey][[{Cursor(_locationSelector, selector)}]][/]");
+			sb.Append($"[grey]{game.GetTotalPowerOfArena(players[0], (ArenaType) selector)}[/]");
+		}
+		
 		return sb.ToString();
 	}
 	

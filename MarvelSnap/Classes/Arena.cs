@@ -130,13 +130,4 @@ public class Arena
 			return totalPower;
 		}
 	}
-	
-	public Player? GetWinner() 
-	{
-		int totalPowerPlayer1 = GetTotalPower(_player1);
-		int totalPowerPlayer2 = GetTotalPower(_player2);
-		if (totalPowerPlayer1 > totalPowerPlayer2) return _player1;
-		else if (totalPowerPlayer2 > totalPowerPlayer1) return _player2;
-		else return null;
-	}
 }

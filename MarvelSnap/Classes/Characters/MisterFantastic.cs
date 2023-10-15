@@ -37,6 +37,7 @@ public class MisterFantastic : CharacterCard
 		if (HasMoved) 
 		{
 			IsOngoingEffectActivated = false;
+			OngoingEffectActivationCount = 0;
 			HasMoved = false;
 			foreach (var arena in arenas) 
 			{
@@ -75,7 +76,38 @@ public class MisterFantastic : CharacterCard
 			}
 		}
 	}
-	
+
+	public override void OnDestroyed(Player player, MarvelSnapGame controller)
+	{
+		if (IsDestroyed) 
+		{
+			List<LocationCard> locations = controller.GetLocations();
+			List<Arena> arenas = controller.GetListOfArenas();
+			IsOngoingEffectActivated = false;
+			OngoingEffectActivationCount = 0;
+			
+			foreach (var arena in arenas) 
+			{
+				if (Arena == arena.Id) 
+				{
+					if (arena.Location == locations[0])  
+					{
+						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
+					}
+					else if (arena.Location == locations[1]) 
+					{
+						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena1, _buffId);
+						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena3, _buffId);
+					}
+					else if (arena.Location == locations[2]) 
+					{
+						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
+					}
+				}
+			}
+		}
+	}
+
 	public override MisterFantastic? DeepCopy()
 	{
 		string json = JsonSerializer.Serialize(this);
