@@ -273,11 +273,10 @@ public partial class Program
 			}
 			Console.WriteLine();
 		}
-
 		Console.WriteLine();
 	}
 	
-		static void CardRevealed(Player? player, Card card) 
+	static void CardRevealed(Player? player, Card card) 
 	{
 		if (player != null) 
 		{
@@ -345,7 +344,7 @@ public partial class Program
 		Thread.Sleep(1000);
 	}
 	
-	static void GameEnded(Player? player) 
+	static void GameEnded(MarvelSnapGame game, Player? player) 
 	{
 		Console.WriteLine("Game ended. Deciding the winner..");
 		Thread.Sleep(1000);

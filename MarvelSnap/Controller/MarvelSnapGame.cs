@@ -27,7 +27,7 @@ public class MarvelSnapGame
 	public Action<Player, Arena>? OnArenaPowerChanged { get; set; }
 	public Action<Player, CharacterCard>? OnEnergyCostChanged { get; set; }
 	public Action<Player, CharacterCard, CharacterCard>? OnCardDestroyed { get; set; }
-	public Action<Player?>? OnGameEnded { get; set; }
+	public Action<MarvelSnapGame, Player?>? OnGameEnded { get; set; }
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
 	
@@ -227,7 +227,7 @@ public class MarvelSnapGame
 			Turn += 1;
 			if (Turn > MaxTurn) 
 			{
-				OnGameEnded?.Invoke(GetPlayerWinner());
+				OnGameEnded?.Invoke(this, GetPlayerWinner());
 				return false;
 			}
 			_locations[0].Ongoing(null, this);
@@ -246,8 +246,10 @@ public class MarvelSnapGame
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
 			SetPlayerTurn(_player1);
-			DrawCard(_player1);
-			DrawCard(_player2);
+			if (_playerCardsInHand[_player1].Count < MaxCardInHand)
+				DrawCard(_player1);
+			if (_playerCardsInHand[_player2].Count < MaxCardInHand)
+				DrawCard(_player2);
 			return true;
 		}
 		else 

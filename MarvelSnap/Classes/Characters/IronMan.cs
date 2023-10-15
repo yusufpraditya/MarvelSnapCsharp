@@ -30,6 +30,7 @@ public class IronMan : CharacterCard
 		if (!IsOngoingEffectActivated) 
 		{
 			IsOngoingEffectActivated = true;
+			OngoingEffectActivationCount++;
 			_buffId = controller.GetLatestArenaBuffId(player, Arena) + 1;
 			Buff buff = new(_buffId, 2, BuffType.Power, BuffOperation.Multiply);
 			controller.AddPowerBuffToArena(player.Id, Arena, buff);

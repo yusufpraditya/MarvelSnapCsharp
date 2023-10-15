@@ -37,6 +37,7 @@ public partial class Program
 		}
 		else 
 		{
+			game.OnCardPowerChanged += CardPowerChangedSpectre;
 			game.OnGameEnded += GameEndedSpectre;
 			
 			DisplaySpectre(game, player1, player2);

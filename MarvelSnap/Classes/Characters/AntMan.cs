@@ -39,8 +39,8 @@ public class AntMan : CharacterCard
 			{
 				IsOngoingEffectActivated = true;
 				OngoingEffectActivationCount++;
-				int buffId = GetLatestBuffId(player) + 1;
-				AddBuff(player.Id, new Buff(buffId, _BuffValue, _BuffType, _BuffOperation));
+				_buffId = GetLatestBuffId(player) + 1;
+				AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
 				controller.NotifyPowerChanged(player, this);
 			}
 		}

@@ -12,12 +12,14 @@ public partial class Program
 	private static int _selectedCard = -1;
 	private static string _cardInfo = "";
 	private static bool _isTakeCard = false;
-	private static ConsoleKey key;
+	private static bool _isEnded = false;
+	private static ConsoleKey _key;
+	private static Dictionary<CharacterCard, string> _cardBuffs = new();
+	
 	
 	static void DisplaySpectre(MarvelSnapGame game, Player player1, Player player2) 
 	{
 		Console.CursorVisible = false;
-		
 		game.SetPlayerName(player1, "Player 1");
 		game.SetPlayerName(player2, "Player 2");
 		game.Start();
@@ -36,7 +38,8 @@ public partial class Program
 			
 			task.Wait();
 			
-			if (game.Turn > game.MaxTurn) game.SetGameStatus(GameStatus.GameEnded);
+			if (_isEnded) 
+				game.SetGameStatus(GameStatus.GameEnded);
 		}
 	}
 	
@@ -49,9 +52,9 @@ public partial class Program
 			List<CharacterCard> handCards = game.GetHandCards(player);
 			List<CharacterCard> arenaCards = game.GetArenaCardsForEachPlayer()[player];
 			List<LocationCard> locationCards = game.GetLocations();
-			key = Console.ReadKey(true).Key;
+			_key = Console.ReadKey(true).Key;
 			
-			switch (key) 
+			switch (_key) 
 			{
 				case ConsoleKey.LeftArrow:
 					if (status == GameStatus.SelectAction) 
@@ -126,9 +129,12 @@ public partial class Program
 						_selectedCard = _characterSelector;
 						if (_isTakeCard) 
 						{
-							game.TakeCardFromArena(player, arenaCards[_selectedCard].Arena, arenaCards[_selectedCard]);
-							game.SetGameStatus(GameStatus.SelectAction);
-							SetActionSelector();
+							if (arenaCards.Count > 0) 
+							{
+								game.TakeCardFromArena(player, arenaCards[_selectedCard].Arena, arenaCards[_selectedCard]);
+								game.SetGameStatus(GameStatus.SelectAction);
+								SetActionSelector();
+							}
 						}
 							
 						else 
@@ -154,8 +160,16 @@ public partial class Program
 					} 
 					break;
 				case ConsoleKey.Escape:
-					SetActionSelector();
-					game.SetGameStatus(GameStatus.SelectAction);
+					if (status == GameStatus.SelectLocation) 
+					{
+						SetCharacterSelector();
+						game.SetGameStatus(GameStatus.SelectCharacter);
+					}
+					else 
+					{
+						SetActionSelector();
+						game.SetGameStatus(GameStatus.SelectAction);
+					}
 					break;
 			}
 		});
@@ -200,9 +214,11 @@ public partial class Program
 		sb.Append($"[yellow2][[{Cursor(_actionSelector, 0)}]] Put card(s)[/]");
 		sb.Append($"[chartreuse1]   [[{Cursor(_actionSelector, 1)}]] Take card(s)[/]");
 		sb.Append($"[orangered1]   [[{Cursor(_actionSelector, 2)}]] End Turn[/]");
+		
 		Table table = new Table()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.White)
+			.Title("[[Space/Enter]] Select    [[Esc]] Back    [[Left/Right]] Move cursor")
 			.AddColumn(new TableColumn(sb.ToString()).Centered());
 		return table.Expand();
 	}
@@ -286,10 +302,10 @@ public partial class Program
 			if (locationCards[_locationSelector].IsRevealed)
 				_cardInfo = locationCards[_locationSelector].Name + "\n" + locationCards[_locationSelector].Description;
 			else
-				_cardInfo =  "";
+				_cardInfo =  "\n";
 		}
 		if (_actionSelector >= 0)
-			_cardInfo = "";
+			_cardInfo = "\n";
 			
 		StringBuilder sb = new StringBuilder();
 		sb.AppendLine("[yellow]Card Info[/]");
@@ -338,13 +354,17 @@ public partial class Program
 	
 	static Table GetArenaCardsTable(Player player, List<CharacterCard> arenaCards) 
 	{
-		List<StringBuilder> sb = new() { new("(Empty)"), new("(Empty)"), new("(Empty)"), new("(Empty)") };
+		List<StringBuilder> sb = new() { new("\n(Empty)\n"), new("\n(Empty)\n"), new("\n(Empty)\n"), new("\n(Empty)\n") };
 		
 		for (int i = 0; i < arenaCards.Count; i++)
 		{
 			sb[i].Clear();
-			sb[i].AppendLine($"[bold blue]{arenaCards[i].GetCurrentEnergyCost(player.Id)}[/] [bold darkorange]{arenaCards[i].GetCurrentPower(player.Id)}[/]");
+			sb[i].AppendLine($"[blue]{arenaCards[i].GetCurrentEnergyCost(player.Id)}[/] {(arenaCards[i].GetCurrentPower(player.Id) == arenaCards[i].BasePower ? "[darkorange]" : "[green]")}{arenaCards[i].GetCurrentPower(player.Id)}[/]");
 			sb[i].AppendLine($"{arenaCards[i].Name}");
+			if (_cardBuffs.ContainsKey(arenaCards[i])) 
+			{
+				sb[i].Append(_cardBuffs[arenaCards[i]]);
+			}
 		}
 		
 		Table table = new Table()
@@ -362,28 +382,80 @@ public partial class Program
 	{
 		List<Player> players = game.GetPlayers();
 		List<Arena> arenas = game.GetListOfArenas();
+		List<CharacterCard> arenaCards1 = arenas[selector].GetCards(players[0]);
+		List<CharacterCard> arenaCards2 = arenas[selector].GetCards(players[1]);
 		StringBuilder sb = new();
 		
+		int player1TotalPower = game.GetTotalPowerOfArena(players[0], (ArenaType) selector);
+		int player2TotalPower = game.GetTotalPowerOfArena(players[1], (ArenaType) selector);
+		
+		if (player2TotalPower > player1TotalPower)
+			sb.AppendLine($"[darkorange]{player2TotalPower}[/] ({GetCardsPower(players[1], arenaCards2)}{GetPowerBuffs(players[1], arenas[selector])})");
+		else
+			sb.AppendLine($"{player2TotalPower} ({GetCardsPower(players[1], arenaCards2)}{GetPowerBuffs(players[1], arenas[selector])})");
 		if (arenas[selector].IsAvailable()) 
 		{
-			sb.AppendLine(game.GetTotalPowerOfArena(players[1], (ArenaType) selector).ToString());
 			sb.AppendLine(location.IsRevealed ? location.Name : "(Unrevealed)");
 			sb.AppendLine($"[[{Cursor(_locationSelector, selector)}]]");
-			sb.Append(game.GetTotalPowerOfArena(players[0], (ArenaType) selector).ToString());
 		}
 		else 
 		{
-			sb.AppendLine($"[grey]{game.GetTotalPowerOfArena(players[1], (ArenaType) selector)}[/]");
 			sb.AppendLine($"[grey]{(location.IsRevealed ? location.Name : "(Unrevealed)")}[/]");
 			sb.AppendLine($"[grey][[{Cursor(_locationSelector, selector)}]][/]");
-			sb.Append($"[grey]{game.GetTotalPowerOfArena(players[0], (ArenaType) selector)}[/]");
 		}
-		
+		if (player1TotalPower > player2TotalPower)
+			sb.Append($"[darkorange]{player1TotalPower}[/] ({GetCardsPower(players[0], arenaCards1)}{GetPowerBuffs(players[0], arenas[selector])})");
+		else
+			sb.Append($"{player1TotalPower} ({GetCardsPower(players[0], arenaCards1)}{GetPowerBuffs(players[0], arenas[selector])})");
 		return sb.ToString();
 	}
 	
-	static void GameEndedSpectre(Player? player) 
+	static string GetCardsPower(Player player, List<CharacterCard> cards) 
 	{
+		string powerString = "";
+		foreach (var card in cards) 
+		{
+			if (card.GetCurrentPower(player.Id) > 0)
+				powerString += $"[green]+{card.GetCurrentPower(player.Id)}[/]";
+		}
+		return powerString;
+	}
+	
+	static string GetPowerBuffs(Player player, Arena arena) 
+	{
+		string buffString = "";
+		List<Buff> powerBuffs = arena.GetPowerBuffs(player.Id);
+		foreach (var buff in powerBuffs) 
+		{
+			if (buff.Type == BuffType.Power)
+				buffString += $"[yellow]{buff.GetSymbol()}{buff.Value}[/]";
+		}
+		return buffString;
+	}
+	
+	static void CardPowerChangedSpectre(Player player, CharacterCard card) 
+	{
+		if (!_cardBuffs.ContainsKey(card)) 
+		{
+			_cardBuffs.Add(card, "");
+		}
+		
+		List<Buff> powerBuffs = card.GetBuffs(player.Id);
+		
+		string baseWithBuff = $"[darkorange]{card.BasePower}[/]";
+		foreach (var buff in powerBuffs) 
+		{
+			if (buff.Type == BuffType.Power) 
+			{
+				baseWithBuff += $"[green]{buff.GetSymbol()}{buff.Value}[/]";
+			}
+		}
+		_cardBuffs[card] = baseWithBuff;
+	}
+	
+	static void GameEndedSpectre(MarvelSnapGame game, Player? player) 
+	{
+		AnsiConsole.Write(MarvelSnapLayout(game));
 		if (player != null) 
 		{
 			AnsiConsole.Write(
@@ -396,5 +468,6 @@ public partial class Program
 			new FigletText("Game Draw!")
 				.Color(Color.Green).Centered());
 		}
+		_isEnded = true;
 	}
 }

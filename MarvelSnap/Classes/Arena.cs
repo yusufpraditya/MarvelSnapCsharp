@@ -113,7 +113,7 @@ public class Arena
 		}
 		else 
 		{
-			int totalPower = 0;
+			int totalPower = cardsPower;
 			_powerBuffs[player.Id].Sort();
 			foreach (var buff in _powerBuffs[player.Id]) 
 			{
@@ -126,7 +126,6 @@ public class Arena
 					totalPower *= buff.Value;
 				}
 			}
-			totalPower += cardsPower;
 			return totalPower;
 		}
 	}
