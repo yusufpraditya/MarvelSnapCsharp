@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 namespace MarvelSnap;
 
 public class Deck
@@ -36,19 +38,17 @@ public class Deck
 	
 	public bool Contains(CharacterCard card) 
 	{
-		if (_cards.Contains(card)) return true;
-		else return false;
+		return _cards.Contains(card);
 	}
 	
 	// https://code-maze.com/csharp-randomize-list/
 	public void Shuffle() 
 	{
-		Random random = new();
 		for (int i = _cards.Count - 1; i > 0; i--) 
 		{
-			int randomIndex = random.Next(i + 1);
-			CharacterCard randomCard = _cards[randomIndex];
-			_cards[randomIndex] = _cards[i];
+			int index = RandomNumberGenerator.GetInt32(i + 1);
+			CharacterCard randomCard = _cards[index];
+			_cards[index] = _cards[i];
 			_cards[i] = randomCard;
 		}
 	}
@@ -57,16 +57,15 @@ public class Deck
 	{
 		if (_cards.Count > 0) 
 		{
-			_cardToDraw = _cards[0];
-			_cards.RemoveAt(0);
+			_cardToDraw = _cards[_cards.Count - 1];
+			_cards.RemoveAt(_cards.Count - 1);
 			return _cardToDraw;
 		}
-		else return null;
+		return null;
 	}
 	
 	public bool IsFull() 
 	{
-		if (_cards.Count == MaxCardCount) return true;
-		else return false;
+		return _cards.Count == MaxCardCount;
 	}
 }

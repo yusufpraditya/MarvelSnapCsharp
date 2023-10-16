@@ -10,77 +10,88 @@ public class DreamDimension : LocationCard
 	private const BuffType _BuffType = BuffType.Energy;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	private Dictionary<CharacterCard, Buff> _cardBuffs = new();
-	private MarvelSnapGame? _controller;
-	
+	//private MarvelSnapGame? _controller;
+
 	public DreamDimension(LocationType id, string name, string description) : base(id, name, description)
 	{
-		
-	}
-	
-	public DreamDimension()
-	{
-		
+
 	}
 
-	public override void OnReveal(Player? player, MarvelSnapGame controller)
+	public DreamDimension()
 	{
-		_controller = controller;
-		List<Player> players = controller.GetPlayers();
-		if (!IsRevealed) 
+
+	}
+
+	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
+	{
+		List<IPlayer> players = controller.GetPlayers();
+		if (!IsRevealed)
 		{
 			IsRevealed = true;
 
-			foreach (var p in players) 
+			foreach (var p in players)
 			{
 				int taskId = controller.GetLatestTaskId(p.Id) + 1;
-				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn1) { Action = () => { FutureTask(p.Id); } });
-				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn2) { Action = () => { FutureTask(p.Id); } });
+				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn1) { Action = () => { FutureTask(controller, p.Id); } });
+				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn2) { Action = () => { FutureTask(controller, p.Id); } });
 			}
-			
+
 			controller.NotifyCardRevealed(null, this);
 		}
 	}
-	
-	private void FutureTask(int ownerId) 
+
+	private void FutureTask(MarvelSnapGame controller, int ownerId)
 	{
-		if (_controller != null) 
+		List<IPlayer> players = controller.GetPlayers();
+
+		// Add FindPlayerById in GC
+		foreach (var player in players)
 		{
-			List<Player> players = _controller.GetPlayers();
-			
-			foreach (var player in players) 
+			if (player.Id != ownerId)
 			{
-				if (player.Id == ownerId) 
+				continue;
+			}
+
+			List<CharacterCard?> handCards = controller.GetHandCards(player);
+			foreach (var card in handCards)
+			{
+				if (card == null) continue;
+				if (controller.Turn == _FutureTurn1)
 				{
-					List<CharacterCard?> handCards = _controller.GetHandCards(player);
-					foreach (var card in handCards) 
-					{
-						if (_controller.Turn == _FutureTurn1) 
-						{
-							int id = card.GetLatestBuffId(player) + 1;
-							Buff buff = new Buff(id, _BuffValue, _BuffType, _BuffOperation);
-							_cardBuffs.TryAdd(card, buff);
-							card.AddBuff(player.Id, buff);
-							_controller.NotifyEnergyCostChanged(player, card);
-						}
-						if (_controller.Turn == _FutureTurn2) 
-						{
-							if (_cardBuffs.ContainsKey(card)) 
-							{
-								card.RemoveBuff(player.Id, _cardBuffs[card].Id);
-								_controller.NotifyEnergyCostChanged(player, card);
-							}
-								
-						}
-					}
+					int id = card.GetLatestBuffId(player) + 1;
+					Buff buff = new Buff(id, _BuffValue, _BuffType, _BuffOperation);
+					_cardBuffs.TryAdd(card, buff);
+					card.AddBuff(player.Id, buff);
+					controller.NotifyEnergyCostChanged(player, card);
+				}
+				if (controller.Turn == _FutureTurn2 && _cardBuffs.ContainsKey(card))
+				{
+					card.RemoveBuff(player.Id, _cardBuffs[card].Id);
+					controller.NotifyEnergyCostChanged(player, card);
 				}
 			}
 		}
 	}
-	
+
 	public override DreamDimension? DeepCopy()
 	{
 		string json = JsonSerializer.Serialize(this);
 		DreamDimension? card = JsonSerializer.Deserialize<DreamDimension>(json);
 		return card;
+	}
+
+	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
 	}
 }

@@ -7,17 +7,17 @@ public class IronMan : CharacterCard
 
 	public IronMan(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
-		
-	}
-	
-	public IronMan() 
-	{
-		
+
 	}
 
-	public override void OnReveal(Player? player, MarvelSnapGame controller)
+	public IronMan()
 	{
-		if (!IsRevealed) 
+
+	}
+
+	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
+	{
+		if (!IsRevealed)
 		{
 			IsRevealed = true;
 			CardTurn = controller.Turn;
@@ -25,9 +25,9 @@ public class IronMan : CharacterCard
 		}
 	}
 
-	public override void Ongoing(Player? player, MarvelSnapGame controller)
+	public override void Ongoing(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsOngoingEffectActivated) 
+		if (!IsOngoingEffectActivated)
 		{
 			IsOngoingEffectActivated = true;
 			OngoingEffectActivationCount++;
@@ -38,11 +38,21 @@ public class IronMan : CharacterCard
 			controller.NotifyArenaPowerChanged(player, arenas[Arena]);
 		}
 	}
-	
+
 	public override IronMan? DeepCopy()
 	{
 		string json = JsonSerializer.Serialize(this);
 		IronMan? card = JsonSerializer.Deserialize<IronMan>(json);
 		return card;
+	}
+
+	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
 	}
 }

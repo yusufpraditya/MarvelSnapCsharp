@@ -1,16 +1,16 @@
 ﻿namespace MarvelSnap;
 
-public class Player
+public class IPlayer
 {
 	public int Id { get; set; }
 	public string? Name { get; set; }
-	
-	public Player(int id) 
+
+	public IPlayer(int id)
 	{
 		Id = id;
 	}
-	
-	public Player(int id, string name) 
+
+	public IPlayer(int id, string name)
 	{
 		Id = id;
 		Name = name;
@@ -23,6 +23,6 @@ public class Player
 
 	public override bool Equals(object? obj)
 	{
-		return obj is Player player && player.Id == Id;
+		return obj is IPlayer player && player.Id == Id;
 	}
 }

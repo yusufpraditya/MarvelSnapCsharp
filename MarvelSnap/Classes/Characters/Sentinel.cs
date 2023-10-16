@@ -6,30 +6,45 @@ public class Sentinel : CharacterCard
 {
 	public Sentinel(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
-		
-	}
-	
-	public Sentinel() 
-	{
-		
+
 	}
 
-	public override void OnReveal(Player player, MarvelSnapGame controller)
+	public Sentinel()
 	{
-		if (!IsRevealed) 
-		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-			
-			controller.AddCardInHand(player, DeepCopy());
-		}
+
 	}
-	
-	public override Sentinel? DeepCopy()
+
+	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
+	{
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
+		var newSentinel = DeepCopy();
+		newSentinel.IsRevealed = false;
+
+		controller.AddCardInHand(player, newSentinel);
+	}
+
+	public override Sentinel DeepCopy()
 	{
 		string json = JsonSerializer.Serialize(this);
-		Sentinel? card = JsonSerializer.Deserialize<Sentinel>(json);
+		Sentinel card = JsonSerializer.Deserialize<Sentinel>(json)!;
 		return card;
+	}
+
+	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
 	}
 }

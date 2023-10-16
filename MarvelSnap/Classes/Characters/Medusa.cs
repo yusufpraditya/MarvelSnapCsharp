@@ -8,30 +8,30 @@ public class Medusa : CharacterCard
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
-	
+
 	public Medusa(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
-		
-	}
-	
-	public Medusa() 
-	{
-		
+
 	}
 
-	public override void OnReveal(Player player, MarvelSnapGame controller)
+	public Medusa()
 	{
-		if (!IsRevealed) 
+
+	}
+
+	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
+	{
+		if (!IsRevealed)
 		{
 			IsRevealed = true;
 			CardTurn = controller.Turn;
 			controller.NotifyCardRevealed(player, this);
 			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
-			foreach (var kvp in arenas) 
+			foreach (var kvp in arenas)
 			{
-				if (kvp.Value.GetCards(player).Contains(this)) 
+				if (kvp.Value.GetCards(player).Contains(this))
 				{
-					if (kvp.Key == ArenaType.Arena2) 
+					if (kvp.Key == ArenaType.Arena2)
 					{
 						AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
 						controller.NotifyPowerChanged(player, this);
@@ -41,11 +41,26 @@ public class Medusa : CharacterCard
 			}
 		}
 	}
-	
+
 	public override Medusa? DeepCopy()
 	{
 		string json = JsonSerializer.Serialize(this);
 		Medusa? card = JsonSerializer.Deserialize<Medusa>(json);
 		return card;
+	}
+
+	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
 	}
 }

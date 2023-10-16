@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace MarvelSnap;
 
@@ -8,20 +9,21 @@ public class AntMan : CharacterCard
 	private const int _BuffValue = 3;
 	private const BuffType _BuffType = BuffType.Power;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
-	
+
 	public AntMan(CharacterType id, string name, string description, int baseEnergyCost, int basePower, bool hasAbility) : base(id, name, description, baseEnergyCost, basePower, hasAbility)
 	{
-		
+
 	}
 
-	public AntMan() 
+	public AntMan()
 	{
-		
+
 	}
 
-	public override void OnReveal(Player player, MarvelSnapGame controller)
+
+	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed) 
+		if (!IsRevealed)
 		{
 			IsRevealed = true;
 			CardTurn = controller.Turn;
@@ -29,13 +31,13 @@ public class AntMan : CharacterCard
 		}
 	}
 
-	public override void Ongoing(Player player, MarvelSnapGame controller)
+	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
 	{
 		List<CharacterCard> arenaCards = controller.GetArenaCards(player, Arena);
 
 		if (!IsOngoingEffectActivated)
 		{
-			if (arenaCards.Count == 4) 
+			if (arenaCards.Count == 4)
 			{
 				IsOngoingEffectActivated = true;
 				OngoingEffectActivationCount++;
@@ -51,5 +53,15 @@ public class AntMan : CharacterCard
 		string json = JsonSerializer.Serialize(this);
 		AntMan? card = JsonSerializer.Deserialize<AntMan>(json);
 		return card;
+	}
+
+	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
+	}
+
+	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
+	{
+		// ignored
 	}
 }

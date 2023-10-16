@@ -2,131 +2,116 @@
 
 public class Arena
 {
-	private Player _player1;
-	private Player _player2;
-	private Dictionary<Player, List<CharacterCard>> _playerCardsInArena = new();
+	private Dictionary<IPlayer, List<CharacterCard>> _playerCardsInArena = new();
 	private Dictionary<int, List<Buff>> _powerBuffs = new();
 	private bool _isAvailable = true;
 	public const int MaxCardsInArena = 4;
 	public ArenaType Id { get; set; }
 	public LocationCard? Location { get; set; }
-	
-	public Arena(ArenaType id, Player player1, Player player2) 
+
+	public Arena(ArenaType id, IPlayer player1, IPlayer player2)
 	{
 		Id = id;
-		_player1 = player1;
-		_player2 = player2;
 		_playerCardsInArena.Add(player1, new());
 		_playerCardsInArena.Add(player2, new());
 		_powerBuffs.Add(player1.Id, new());
 		_powerBuffs.Add(player2.Id, new());
 	}
-	
-	public void SetLocation(LocationCard location) 
+
+	public void SetLocation(LocationCard location)
 	{
 		Location = location;
 	}
-	
-	public bool PutCard(Player player, CharacterCard card) 
+
+	public bool PutCard(IPlayer player, CharacterCard card)
 	{
-		if (_isAvailable && _playerCardsInArena[player].Count < MaxCardsInArena) 
+		if (_isAvailable && _playerCardsInArena[player].Count < MaxCardsInArena)
 		{
 			_playerCardsInArena[player].Add(card);
 			return true;
 		}
 		return false;
 	}
-	
-	public bool TakeCard(Player player, CharacterCard card) 
+
+	public bool TakeCard(IPlayer player, CharacterCard card)
 	{
-		if (_playerCardsInArena[player].Count > 0) 
+		if (_playerCardsInArena[player].Count > 0)
 		{
 			_playerCardsInArena[player].Remove(card);
 			return true;
 		}
 		return false;
 	}
-	
-	public List<CharacterCard> GetCards(Player player) 
+
+	public List<CharacterCard> GetCards(IPlayer player)
 	{
 		return _playerCardsInArena[player];
 	}
-	
-	public bool Contains(Player player, CharacterCard card) 
+
+	public bool Contains(IPlayer player, CharacterCard card)
 	{
-		if (_playerCardsInArena[player].Contains(card)) return true;
-		else return false;
+		return _playerCardsInArena[player].Contains(card);
 	}
 
-	public void SetAvailable(bool isAvailable) 
+	public void SetAvailable(bool isAvailable)
 	{
 		_isAvailable = isAvailable;
 	}
-	
-	public bool IsAvailable() 
+
+	public bool IsAvailable()
 	{
 		return _isAvailable;
 	}
-	
-	public void AddPowerBuff(int ownerId, Buff buff) 
+
+	public void AddPowerBuff(int ownerId, Buff buff)
 	{
 		_powerBuffs[ownerId].Add(buff);
 	}
-	
-	public bool RemovePowerBuff(int ownerId, int buffId) 
+
+	public bool RemovePowerBuff(int ownerId, int buffId)
 	{
-		foreach (var buff in _powerBuffs[ownerId].ToList()) 
-		{
-			if (buff.Id == buffId)
-			{
-				_powerBuffs[ownerId].Remove(buff);
-				return true;
-			} 
-		}
-		return false;
+		return _powerBuffs[ownerId].RemoveAll(b => b.Id == buffId) > 0;
 	}
-	
-	public List<Buff> GetPowerBuffs(int ownerId) 
+
+	public List<Buff> GetPowerBuffs(int ownerId)
 	{
 		return _powerBuffs[ownerId];
 	}
-	
-	public int GetLatestBuffId(Player player) 
+
+	public int GetLatestBuffId(IPlayer player)
 	{
-		if(_powerBuffs.ContainsKey(player.Id)) 
+		if (_powerBuffs.ContainsKey(player.Id))
 		{
 			return _powerBuffs[player.Id].Count - 1;
 		}
-		else return 0;
+		return 0;
 	}
-	
-	public int GetTotalPower(Player player) 
+
+	public int GetTotalPower(IPlayer player)
 	{
 		int cardsPower = 0;
-		foreach (var card in _playerCardsInArena[player]) 
+		foreach (var card in _playerCardsInArena[player])
 		{
 			cardsPower += card.GetCurrentPower(player.Id);
 		}
-		if (!_powerBuffs.ContainsKey(player.Id)) 
+		if (!_powerBuffs.ContainsKey(player.Id))
 		{
 			return cardsPower;
 		}
-		else 
+
+		int totalPower = cardsPower;
+		_powerBuffs[player.Id].Sort();
+		foreach (var buff in _powerBuffs[player.Id])
 		{
-			int totalPower = cardsPower;
-			_powerBuffs[player.Id].Sort();
-			foreach (var buff in _powerBuffs[player.Id]) 
+			if (buff.Operation == BuffOperation.Add)
 			{
-				if (buff.Operation == BuffOperation.Add) 
-				{
-					totalPower += buff.Value;
-				}
-				else 
-				{
-					totalPower *= buff.Value;
-				}
+				totalPower += buff.Value;
 			}
-			return totalPower;
+			else
+			{
+				totalPower *= buff.Value;
+			}
 		}
+		return totalPower;
 	}
 }
