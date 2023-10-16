@@ -43,22 +43,20 @@ public class CharacterCard : Card
 		{
 			return BasePower;
 		}
-		if (_buffs[ownerId].Count > 0) 
+		_buffs[ownerId].Sort();
+		var buffs = _buffs[ownerId].Where(buff => buff.Type == BuffType.Power);
+		if (buffs.Count() > 0)
 		{
-			_buffs[ownerId].Sort();
 			int currentPower = 0;
-			foreach (var buff in _buffs[ownerId]) 
+			foreach (var buff in buffs) 
 			{
-				if (buff.Type == BuffType.Power) 
+				if (currentPower > 0) 
 				{
-					if (currentPower > 0) 
-					{
-						currentPower += buff.Apply(0);
-					}
-					else 
-					{
-						currentPower += buff.Apply(BasePower);
-					}
+					currentPower += buff.Apply(0);
+				}
+				else 
+				{
+					currentPower += buff.Apply(BasePower);
 				}
 			}
 			return currentPower;

@@ -29,7 +29,6 @@ public class DreamDimension : LocationCard
 		if (!IsRevealed) 
 		{
 			IsRevealed = true;
-			
 
 			foreach (var p in players) 
 			{

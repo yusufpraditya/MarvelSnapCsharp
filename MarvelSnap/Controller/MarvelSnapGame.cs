@@ -125,7 +125,9 @@ public class MarvelSnapGame
 		_dictArenas[ArenaType.Arena3] = arena3;
 	}
 
-	
+	/// <summary>
+	/// Starts the game by drawing initial cards for each player and reveals first location.
+	/// </summary>
 	public void Start() 
 	{
 		if (!_hasStarted) 
@@ -143,16 +145,29 @@ public class MarvelSnapGame
 		}
 	}
 	
+	/// <summary>
+	/// Sets the current status of the game.
+	/// </summary>
+	/// <param name="gameStatus">Current game status.</param>
 	public void SetGameStatus(GameStatus gameStatus) 
 	{
 		_gameStatus = gameStatus;
 	}
 	
+	/// <summary>
+	/// Gets the current status of the game.
+	/// </summary>
+	/// <returns> current game status.</returns>
 	public GameStatus GetGameStatus() 
 	{
 		return _gameStatus;
 	}
 	
+	/// <summary>
+	/// Sets the player name.
+	/// </summary>
+	/// <param name="player">Instance of player.</param>
+	/// <param name="name">Player name.</param>
 	public void SetPlayerName(Player player, string? name) 
 	{
 		player.Name = name;
@@ -246,10 +261,22 @@ public class MarvelSnapGame
 			_playerHasPlayed[_player1] = false;
 			_playerHasPlayed[_player2] = false;
 			SetPlayerTurn(_player1);
+			
 			if (_playerCardsInHand[_player1].Count < MaxCardInHand)
 				DrawCard(_player1);
 			if (_playerCardsInHand[_player2].Count < MaxCardInHand)
 				DrawCard(_player2);
+				
+			List<Player> revealers = GetRevealers();
+			foreach (var revealer in revealers) 
+			{
+				// https://code-maze.com/csharp-remove-elements-from-list-iteration/
+				for (int i = _futureTasks[revealer.Id].Count - 1; i >= 0; i--) 
+				{
+					bool status = _futureTasks[revealer.Id][i].Run(Turn);
+					if (status) RemoveFutureTask(revealer.Id, _futureTasks[revealer.Id][i]);
+				}
+			}
 			return true;
 		}
 		else 
@@ -264,24 +291,7 @@ public class MarvelSnapGame
 		
 		if (PlayersHavePlayed())
 		{
-			List<Player> revealers = new();
-			Player? firstRevealer = GetPlayerWinner();
-			Player secondRevealer;
-			Random random = new();
-			
-			if (firstRevealer != null) 
-			{
-				secondRevealer = GetOpponent(firstRevealer);
-				revealers.Add(firstRevealer);
-				revealers.Add(secondRevealer);
-			} 
-			else 
-			{
-				int randomIndex = random.Next(0, 1);
-				revealers.Add(_players[randomIndex]);
-				if (randomIndex == 0) revealers.Add(_players[1]);
-				else revealers.Add(_players[0]);
-			}
+			List<Player> revealers = GetRevealers();
 			
 			foreach (var revealer in revealers)
 			{
@@ -292,19 +302,35 @@ public class MarvelSnapGame
 					card.OnDestroyed(revealer, this);
 					card.OnMoved(revealer, this);	
 				}
-				
-				// https://code-maze.com/csharp-remove-elements-from-list-iteration/
-				for (int i = _futureTasks[revealer.Id].Count - 1; i >= 0; i--) 
-				{
-					bool status = _futureTasks[revealer.Id][i].Run(Turn);
-					if (status) RemoveFutureTask(revealer.Id, _futureTasks[revealer.Id][i]);
-				}
 			}
 		}
 		
 		bool nextPlayerStatus = TryGetNextPlayer(out Player? nextPlayer);
 		if (nextPlayerStatus) SetPlayerTurn(nextPlayer);
 		NextTurn();
+	}
+	
+	public List<Player> GetRevealers() 
+	{
+		List<Player> revealers = new();
+		Player? firstRevealer = GetPlayerWinner();
+		Player secondRevealer;
+		Random random = new();
+		
+		if (firstRevealer != null) 
+		{
+			secondRevealer = GetOpponent(firstRevealer);
+			revealers.Add(firstRevealer);
+			revealers.Add(secondRevealer);
+		} 
+		else 
+		{
+			int randomIndex = random.Next(0, 1);
+			revealers.Add(_players[randomIndex]);
+			if (randomIndex == 0) revealers.Add(_players[1]);
+			else revealers.Add(_players[0]);
+		}
+		return revealers;
 	}
 	
 	public void AddPowerBuffToArena(int ownerId, ArenaType type, Buff buff) 

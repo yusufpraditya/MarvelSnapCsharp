@@ -14,9 +14,8 @@ public partial class Program
 	private static bool _isTakeCard = false;
 	private static bool _isEnded = false;
 	private static ConsoleKey _key;
-	private static Dictionary<CharacterCard, string> _cardBuffs = new();
-	
-	
+	private static Dictionary<CharacterCard, string> _buffedCards = new();
+		
 	static void DisplaySpectre(MarvelSnapGame game, Player player1, Player player2) 
 	{
 		Console.CursorVisible = false;
@@ -228,7 +227,7 @@ public partial class Program
 		Table characters = new Table()
 			.Border(TableBorder.Square)
 			.BorderColor(Color.White)
-			.Caption($"[blue]Energy: {game.GetCurrentEnergy(player)}[/] [white]Turn: {game.Turn}/{game.MaxTurn}[/]");
+			.Caption($"[blue]Energy: {game.GetCurrentEnergy(player)}[/] | [white]Turn: {game.Turn}/{game.MaxTurn}[/] | [cyan]First revealer: {game.GetRevealers()[0].Name}[/]"); 
 		List<CharacterCard> handCards = game.GetHandCards(player);
 		Dictionary<Player, List<CharacterCard>> arenaCards = game.GetArenaCardsForEachPlayer();
 		
@@ -273,7 +272,13 @@ public partial class Program
 				
 			else 
 			{
-				sb.AppendLine($"[blue]{cards[i].GetCurrentEnergyCost(player.Id)}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
+				int energyCost = cards[i].GetCurrentEnergyCost(player.Id);
+				if (energyCost > cards[i].BaseEnergyCost)
+					sb.AppendLine($"[red]{energyCost}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
+				else if (energyCost == cards[i].BaseEnergyCost)
+					sb.AppendLine($"[blue]{energyCost}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
+				else
+					sb.AppendLine($"[green]{energyCost}[/] [darkorange]{cards[i].GetCurrentPower(player.Id)}[/]");
 				sb.AppendLine($"[[{Cursor(_characterSelector, i)}]]");
 				sb.Append(cards[i].Name);
 			}
@@ -358,12 +363,18 @@ public partial class Program
 		
 		for (int i = 0; i < arenaCards.Count; i++)
 		{
+			int energyCost = arenaCards[i].GetCurrentEnergyCost(player.Id);
 			sb[i].Clear();
-			sb[i].AppendLine($"[blue]{arenaCards[i].GetCurrentEnergyCost(player.Id)}[/] {(arenaCards[i].GetCurrentPower(player.Id) == arenaCards[i].BasePower ? "[darkorange]" : "[green]")}{arenaCards[i].GetCurrentPower(player.Id)}[/]");
+			if (energyCost > arenaCards[i].BaseEnergyCost)
+				sb[i].AppendLine($"[red]{energyCost}[/] {(arenaCards[i].GetCurrentPower(player.Id) == arenaCards[i].BasePower ? "[darkorange]" : "[green]")}{arenaCards[i].GetCurrentPower(player.Id)}[/]");
+			else if (energyCost == arenaCards[i].BaseEnergyCost)
+				sb[i].AppendLine($"[blue]{energyCost}[/] {(arenaCards[i].GetCurrentPower(player.Id) == arenaCards[i].BasePower ? "[darkorange]" : "[green]")}{arenaCards[i].GetCurrentPower(player.Id)}[/]");
+			else
+				sb[i].AppendLine($"[green]{energyCost}[/] {(arenaCards[i].GetCurrentPower(player.Id) == arenaCards[i].BasePower ? "[darkorange]" : "[green]")}{arenaCards[i].GetCurrentPower(player.Id)}[/]");
 			sb[i].AppendLine($"{arenaCards[i].Name}");
-			if (_cardBuffs.ContainsKey(arenaCards[i])) 
+			if (_buffedCards.ContainsKey(arenaCards[i])) 
 			{
-				sb[i].Append(_cardBuffs[arenaCards[i]]);
+				sb[i].Append(_buffedCards[arenaCards[i]]);
 			}
 		}
 		
@@ -435,10 +446,8 @@ public partial class Program
 	
 	static void CardPowerChangedSpectre(Player player, CharacterCard card) 
 	{
-		if (!_cardBuffs.ContainsKey(card)) 
-		{
-			_cardBuffs.Add(card, "");
-		}
+		if (!_buffedCards.ContainsKey(card)) 
+			_buffedCards.Add(card, "");
 		
 		List<Buff> powerBuffs = card.GetBuffs(player.Id);
 		
@@ -450,7 +459,7 @@ public partial class Program
 				baseWithBuff += $"[green]{buff.GetSymbol()}{buff.Value}[/]";
 			}
 		}
-		_cardBuffs[card] = baseWithBuff;
+		_buffedCards[card] = baseWithBuff;
 	}
 	
 	static void GameEndedSpectre(MarvelSnapGame game, Player? player) 
