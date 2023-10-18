@@ -5,6 +5,8 @@ namespace Program;
 
 public partial class Program
 {
+	private static GameStatus _gameStatus = GameStatus.NotStarted;
+	
 	static void Main()
 	{
 		Console.Clear();
@@ -20,8 +22,8 @@ public partial class Program
 		if (choice == choices[0]) isSpectre = false;
 		else isSpectre = true;
 
-		IPlayer player1 = new(1);
-		IPlayer player2 = new(2);
+		IPlayer player1 = new Player(1);
+		IPlayer player2 = new Player(2);
 		MarvelSnapGame game = new(player1, player2);
 
 		if (!isSpectre)
@@ -43,4 +45,24 @@ public partial class Program
 			DisplaySpectre(game, player1, player2);
 		}
 	}
+	
+	static void SetGameStatus(GameStatus gameStatus)
+	{
+		_gameStatus = gameStatus;
+	}
+
+	static GameStatus GetGameStatus()
+	{
+		return _gameStatus;
+	}
+}
+
+public enum GameStatus 
+{
+	NotStarted,
+	Ongoing,
+	SelectAction,
+	SelectLocation,
+	SelectCharacter,
+	GameEnded
 }

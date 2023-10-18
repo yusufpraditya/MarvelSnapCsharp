@@ -10,11 +10,11 @@ public partial class Program
 		Console.CursorVisible = false;
 		InputPlayerName(player1, player2);
 		game.Start();
-		game.SetGameStatus(GameStatus.Ongoing);
+		SetGameStatus(GameStatus.Ongoing);
 
-		while (game.GetGameStatus() != GameStatus.GameEnded)
+		while (GetGameStatus() != GameStatus.GameEnded)
 		{
-			if (game.GetGameStatus() == GameStatus.Ongoing)
+			if (GetGameStatus() == GameStatus.Ongoing)
 			{
 				List<Arena> arenas = game.GetListOfArenas();
 				List<IPlayer> players = game.GetPlayers();
@@ -39,9 +39,9 @@ public partial class Program
 				}
 			}
 
-			if (game.Turn > game.MaxTurn) game.SetGameStatus(GameStatus.GameEnded);
+			if (game.Turn > game.MaxTurn) SetGameStatus(GameStatus.GameEnded);
 		}
-		game.SetGameStatus(GameStatus.NotStarted);
+		SetGameStatus(GameStatus.NotStarted);
 	}
 
 	static void InputPlayerName(IPlayer player1, IPlayer player2)

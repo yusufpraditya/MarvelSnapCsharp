@@ -19,12 +19,12 @@ public partial class Program
 	static void DisplaySpectre(MarvelSnapGame game, IPlayer player1, IPlayer player2)
 	{
 		Console.CursorVisible = false;
-		game.SetPlayerName(player1, "Player 1");
-		game.SetPlayerName(player2, "Player 2");
+		player1.Name = "Player 1";
+		player2.Name = "Player 2";
 		game.Start();
-		game.SetGameStatus(GameStatus.SelectAction);
+		SetGameStatus(GameStatus.SelectAction);
 
-		while (game.GetGameStatus() != GameStatus.GameEnded)
+		while (GetGameStatus() != GameStatus.GameEnded)
 		{
 			IPlayer player = game.GetPlayerTurn();
 
@@ -38,7 +38,7 @@ public partial class Program
 			task.Wait();
 
 			if (_isEnded)
-				game.SetGameStatus(GameStatus.GameEnded);
+				SetGameStatus(GameStatus.GameEnded);
 		}
 	}
 
@@ -46,7 +46,7 @@ public partial class Program
 	{
 		await Task.Run(() =>
 		{
-			GameStatus status = game.GetGameStatus();
+			GameStatus status = GetGameStatus();
 			List<Arena> arenas = game.GetListOfArenas();
 			List<CharacterCard> handCards = game.GetHandCards(player);
 			List<CharacterCard> arenaCards = game.GetArenaCardsForEachPlayer()[player];
@@ -98,12 +98,12 @@ public partial class Program
 						if (_actionSelector == 0)
 						{
 							_isTakeCard = false;
-							game.SetGameStatus(GameStatus.SelectCharacter);
+							SetGameStatus(GameStatus.SelectCharacter);
 						}
 						else if (_actionSelector == 1)
 						{
 							_isTakeCard = true;
-							game.SetGameStatus(GameStatus.SelectCharacter);
+							SetGameStatus(GameStatus.SelectCharacter);
 						}
 						else
 						{
@@ -120,7 +120,7 @@ public partial class Program
 						}
 						else
 						{
-							game.SetGameStatus(GameStatus.SelectAction);
+							SetGameStatus(GameStatus.SelectAction);
 						}
 					}
 					else if (status == GameStatus.SelectCharacter)
@@ -131,7 +131,7 @@ public partial class Program
 							if (arenaCards.Count > 0)
 							{
 								game.TakeCardFromArena(player, arenaCards[_selectedCard].Arena, arenaCards[_selectedCard]);
-								game.SetGameStatus(GameStatus.SelectAction);
+								SetGameStatus(GameStatus.SelectAction);
 								SetActionSelector();
 							}
 						}
@@ -140,7 +140,7 @@ public partial class Program
 						{
 							if (game.GetCurrentEnergy(player) >= handCards[_selectedCard].GetCurrentEnergyCost(player.Id))
 							{
-								game.SetGameStatus(GameStatus.SelectLocation);
+								SetGameStatus(GameStatus.SelectLocation);
 								SetLocationSelector();
 							}
 						}
@@ -152,7 +152,7 @@ public partial class Program
 							if (arenas[_locationSelector].IsAvailable())
 							{
 								game.PutCardInArena(player, (ArenaType)_locationSelector, handCards[_selectedCard]);
-								game.SetGameStatus(GameStatus.SelectAction);
+								SetGameStatus(GameStatus.SelectAction);
 								SetActionSelector();
 							}
 						}
@@ -162,12 +162,12 @@ public partial class Program
 					if (status == GameStatus.SelectLocation)
 					{
 						SetCharacterSelector();
-						game.SetGameStatus(GameStatus.SelectCharacter);
+						SetGameStatus(GameStatus.SelectCharacter);
 					}
 					else
 					{
 						SetActionSelector();
-						game.SetGameStatus(GameStatus.SelectAction);
+						SetGameStatus(GameStatus.SelectAction);
 					}
 					break;
 			}
