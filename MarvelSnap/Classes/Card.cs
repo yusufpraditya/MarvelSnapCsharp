@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace MarvelSnap;
 
 public abstract class Card
@@ -24,15 +22,10 @@ public abstract class Card
 		Description = other.Description;
 	}
 
-	public Card()
-	{
-
-	}
-
 	public abstract void OnReveal(IPlayer player, MarvelSnapGame controller);
 	public abstract void Ongoing(IPlayer player, MarvelSnapGame controller);
 	public abstract void OnDestroyed(IPlayer player, MarvelSnapGame controller);
 	public abstract void OnMoved(IPlayer player, MarvelSnapGame controller);
 	public abstract Card ShallowCopy();
-	public abstract Card? DeepCopy(); // prototype design pattern
+	public abstract Card DeepCopy();
 }

@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 public class IronMan : CharacterCard
 {
 	private int _buffId = 0;
@@ -10,40 +8,24 @@ public class IronMan : CharacterCard
 
 	}
 
-	public IronMan()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-		}
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
 	}
 
 	public override void Ongoing(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsOngoingEffectActivated)
-		{
-			IsOngoingEffectActivated = true;
-			OngoingEffectActivationCount++;
-			_buffId = controller.GetLatestArenaBuffId(player, Arena) + 1;
-			Buff buff = new(_buffId, 2, BuffType.Power, BuffOperation.Multiply);
-			controller.AddPowerBuffToArena(player.Id, Arena, buff);
-			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
-			controller.NotifyArenaPowerChanged(player, arenas[Arena]);
-		}
-	}
-
-	public override IronMan? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		IronMan? card = JsonSerializer.Deserialize<IronMan>(json);
-		return card;
+		if (IsOngoingEffectActivated) return;
+		IsOngoingEffectActivated = true;
+		OngoingEffectActivationCount++;
+		_buffId = controller.GetLatestArenaBuffId(player, Arena) + 1;
+		Buff buff = new(_buffId, 2, BuffType.Power, BuffOperation.Multiply);
+		controller.AddPowerBuffToArena(player.Id, Arena, buff);
+		Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
+		controller.NotifyArenaPowerChanged(player, arenas[Arena]);
 	}
 
 	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
@@ -54,5 +36,10 @@ public class IronMan : CharacterCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override IronMan DeepCopy()
+	{
+		return new IronMan(CharacterType.IronMan, "Iron Man", "Ongoing: Your total Power is doubled at this location.", 5, 0, true);
 	}
 }

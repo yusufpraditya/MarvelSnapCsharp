@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class DreamDimension : LocationCard
 {
@@ -10,14 +8,8 @@ public class DreamDimension : LocationCard
 	private const BuffType _BuffType = BuffType.Energy;
 	private const BuffOperation _BuffOperation = BuffOperation.Add;
 	private Dictionary<CharacterCard, Buff> _cardBuffs = new();
-	//private MarvelSnapGame? _controller;
 
 	public DreamDimension(LocationType id, string name, string description) : base(id, name, description)
-	{
-
-	}
-
-	public DreamDimension()
 	{
 
 	}
@@ -25,19 +17,17 @@ public class DreamDimension : LocationCard
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
 		List<IPlayer> players = controller.GetPlayers();
-		if (!IsRevealed)
+		if (IsRevealed) return;
+		IsRevealed = true;
+
+		foreach (var p in players)
 		{
-			IsRevealed = true;
-
-			foreach (var p in players)
-			{
-				int taskId = controller.GetLatestTaskId(p.Id) + 1;
-				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn1) { Action = () => { FutureTask(controller, p.Id); } });
-				controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn2) { Action = () => { FutureTask(controller, p.Id); } });
-			}
-
-			controller.NotifyCardRevealed(null, this);
+			int taskId = controller.GetLatestTaskId(p.Id) + 1;
+			controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn1) { Action = () => { FutureTask(controller, p.Id); } });
+			controller.AddFutureTask(p.Id, new FutureTask(taskId, _FutureTurn2) { Action = () => { FutureTask(controller, p.Id); } });
 		}
+
+		controller.NotifyCardRevealed(null, this);
 	}
 
 	private void FutureTask(MarvelSnapGame controller, int ownerId)
@@ -71,13 +61,6 @@ public class DreamDimension : LocationCard
 				}
 			}
 		}
-	}
-
-	public override DreamDimension? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		DreamDimension? card = JsonSerializer.Deserialize<DreamDimension>(json);
-		return card;
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)

@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class MisterFantastic : CharacterCard
 {
@@ -14,19 +12,12 @@ public class MisterFantastic : CharacterCard
 
 	}
 
-	public MisterFantastic()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-		}
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
@@ -45,33 +36,31 @@ public class MisterFantastic : CharacterCard
 			}
 		}
 
-		if (!IsOngoingEffectActivated)
+		if (IsOngoingEffectActivated) return;
+		IsOngoingEffectActivated = true;
+		OngoingEffectActivationCount++;
+		foreach (var arena in arenas)
 		{
-			IsOngoingEffectActivated = true;
-			OngoingEffectActivationCount++;
-			foreach (var arena in arenas)
+			_buffId = arena.GetLatestBuffId(player) + 1;
+			Buff buff = new(_buffId, _BuffValue, _BuffType, _BuffOperation);
+			if (Arena == arena.Id)
 			{
-				_buffId = arena.GetLatestBuffId(player) + 1;
-				Buff buff = new(_buffId, _BuffValue, _BuffType, _BuffOperation);
-				if (Arena == arena.Id)
+				if (arena.Location == locations[0])
 				{
-					if (arena.Location == locations[0])
-					{
-						controller.AddPowerBuffToArena(player.Id, ArenaType.Arena2, buff);
-						controller.NotifyArenaPowerChanged(player, arenas[1]);
-					}
-					else if (arena.Location == locations[1])
-					{
-						controller.AddPowerBuffToArena(player.Id, ArenaType.Arena1, buff);
-						controller.AddPowerBuffToArena(player.Id, ArenaType.Arena3, buff);
-						controller.NotifyArenaPowerChanged(player, arenas[0]);
-						controller.NotifyArenaPowerChanged(player, arenas[2]);
-					}
-					else if (arena.Location == locations[2])
-					{
-						controller.AddPowerBuffToArena(player.Id, ArenaType.Arena2, buff);
-						controller.NotifyArenaPowerChanged(player, arenas[1]);
-					}
+					controller.AddPowerBuffToArena(player.Id, ArenaType.Arena2, buff);
+					controller.NotifyArenaPowerChanged(player, arenas[1]);
+				}
+				else if (arena.Location == locations[1])
+				{
+					controller.AddPowerBuffToArena(player.Id, ArenaType.Arena1, buff);
+					controller.AddPowerBuffToArena(player.Id, ArenaType.Arena3, buff);
+					controller.NotifyArenaPowerChanged(player, arenas[0]);
+					controller.NotifyArenaPowerChanged(player, arenas[2]);
+				}
+				else if (arena.Location == locations[2])
+				{
+					controller.AddPowerBuffToArena(player.Id, ArenaType.Arena2, buff);
+					controller.NotifyArenaPowerChanged(player, arenas[1]);
 				}
 			}
 		}
@@ -79,44 +68,40 @@ public class MisterFantastic : CharacterCard
 
 	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
 	{
-		if (IsDestroyed)
-		{
-			List<LocationCard> locations = controller.GetLocations();
-			List<Arena> arenas = controller.GetListOfArenas();
-			IsOngoingEffectActivated = false;
-			OngoingEffectActivationCount = 0;
+		if (!IsDestroyed) return;
+		List<LocationCard> locations = controller.GetLocations();
+		List<Arena> arenas = controller.GetListOfArenas();
+		IsOngoingEffectActivated = false;
+		OngoingEffectActivationCount = 0;
 
-			foreach (var arena in arenas)
+		foreach (var arena in arenas)
+		{
+			if (Arena == arena.Id)
 			{
-				if (Arena == arena.Id)
+				if (arena.Location == locations[0])
 				{
-					if (arena.Location == locations[0])
-					{
-						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
-					}
-					else if (arena.Location == locations[1])
-					{
-						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena1, _buffId);
-						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena3, _buffId);
-					}
-					else if (arena.Location == locations[2])
-					{
-						controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
-					}
+					controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
+				}
+				else if (arena.Location == locations[1])
+				{
+					controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena1, _buffId);
+					controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena3, _buffId);
+				}
+				else if (arena.Location == locations[2])
+				{
+					controller.RemovePowerBuffFromArena(player.Id, ArenaType.Arena2, _buffId);
 				}
 			}
 		}
 	}
 
-	public override MisterFantastic? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		MisterFantastic? card = JsonSerializer.Deserialize<MisterFantastic>(json);
-		return card;
-	}
-
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override MisterFantastic DeepCopy()
+	{
+		return new(CharacterType.MisterFantastic, "Mister Fantastic", "Ongoing: Adjacent locations have +2 Power.", 3, 2, true);
 	}
 }

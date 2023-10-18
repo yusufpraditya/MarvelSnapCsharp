@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class Kyln : LocationCard
 {
@@ -9,18 +7,11 @@ public class Kyln : LocationCard
 
 	}
 
-	public Kyln()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			controller.NotifyCardRevealed(null, this);
-		}
+		if (IsRevealed) return;
+		IsRevealed = true;
+		controller.NotifyCardRevealed(null, this);
 	}
 
 	public override void Ongoing(IPlayer? player, MarvelSnapGame controller)
@@ -34,13 +25,6 @@ public class Kyln : LocationCard
 					arena.SetAvailable(false);
 			}
 		}
-	}
-
-	public override Kyln? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		Kyln? card = JsonSerializer.Deserialize<Kyln>(json);
-		return card;
 	}
 
 	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)

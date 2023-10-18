@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class Hulk : CharacterCard
 {
@@ -9,26 +7,12 @@ public class Hulk : CharacterCard
 
 	}
 
-	public Hulk()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-		}
-	}
-
-	public override Hulk? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		Hulk? card = JsonSerializer.Deserialize<Hulk>(json);
-		return card;
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
@@ -44,5 +28,10 @@ public class Hulk : CharacterCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override Hulk DeepCopy()
+	{
+		return new Hulk(CharacterType.Hulk, "Hulk", "HULK SMASH!", 6, 12, false);
 	}
 }

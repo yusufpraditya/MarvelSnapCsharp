@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class OnslaughtsCitadel : LocationCard
 {
@@ -9,18 +7,11 @@ public class OnslaughtsCitadel : LocationCard
 
 	}
 
-	public OnslaughtsCitadel()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			controller.NotifyCardRevealed(null, this);
-		}
+		if (IsRevealed) return;
+		IsRevealed = true;
+		controller.NotifyCardRevealed(null, this);
 	}
 
 	public override void Ongoing(IPlayer? player, MarvelSnapGame controller)
@@ -33,24 +24,13 @@ public class OnslaughtsCitadel : LocationCard
 		{
 			foreach (var card in playerCardsInArena[p])
 			{
-				if (arenas[card.Arena].Location == this)
+				if (arenas[card.Arena].Location == this && card.OngoingEffectActivationCount < CharacterCard.MaxOngoingEffectActivation)
 				{
-					if (card.OngoingEffectActivationCount < CharacterCard.MaxOngoingEffectActivation)
-					{
-						card.IsOngoingEffectActivated = false;
-						card.Ongoing(p, controller);
-					}
-
+					card.IsOngoingEffectActivated = false;
+					card.Ongoing(p, controller);
 				}
 			}
 		}
-	}
-
-	public override OnslaughtsCitadel? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		OnslaughtsCitadel? card = JsonSerializer.Deserialize<OnslaughtsCitadel>(json);
-		return card;
 	}
 
 	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)

@@ -1,7 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public abstract class CharacterCard : Card
 {
@@ -29,12 +26,6 @@ public abstract class CharacterCard : Card
 		BaseEnergyCost = baseEnergyCost;
 		BasePower = basePower;
 		HasAbility = hasAbility;
-	}
-
-	[JsonConstructor]
-	public CharacterCard()
-	{
-
 	}
 
 	public int GetCurrentPower(int ownerId)
@@ -124,18 +115,9 @@ public abstract class CharacterCard : Card
 		return 0;
 	}
 
-
-
 	public override CharacterCard ShallowCopy()
 	{
 		CharacterCard other = (CharacterCard)MemberwiseClone();
 		return other;
-	}
-
-	public override CharacterCard? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		CharacterCard? card = JsonSerializer.Deserialize<CharacterCard>(json);
-		return card;
 	}
 }

@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class Limbo : LocationCard
 {
@@ -9,26 +7,12 @@ public class Limbo : LocationCard
 
 	}
 
-	public Limbo()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			controller.NotifyCardRevealed(null, this);
-			controller.MaxTurn = 7;
-		}
-	}
-
-	public override Limbo? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		Limbo? card = JsonSerializer.Deserialize<Limbo>(json);
-		return card;
+		if (IsRevealed) return;
+		IsRevealed = true;
+		controller.NotifyCardRevealed(null, this);
+		controller.MaxTurn = 7;
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)

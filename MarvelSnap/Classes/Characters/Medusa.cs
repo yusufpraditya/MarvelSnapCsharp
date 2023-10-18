@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class Medusa : CharacterCard
 {
@@ -14,39 +12,22 @@ public class Medusa : CharacterCard
 
 	}
 
-	public Medusa()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
+		Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
+		foreach (var kvp in arenas)
 		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-			Dictionary<ArenaType, Arena> arenas = controller.GetArenas();
-			foreach (var kvp in arenas)
+			if (kvp.Value.GetCards(player).Contains(this) && kvp.Key == ArenaType.Arena2)
 			{
-				if (kvp.Value.GetCards(player).Contains(this))
-				{
-					if (kvp.Key == ArenaType.Arena2)
-					{
-						AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
-						controller.NotifyPowerChanged(player, this);
-						_buffId += 1;
-					}
-				}
+				AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+				controller.NotifyPowerChanged(player, this);
+				_buffId += 1;
 			}
 		}
-	}
-
-	public override Medusa? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		Medusa? card = JsonSerializer.Deserialize<Medusa>(json);
-		return card;
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
@@ -62,5 +43,10 @@ public class Medusa : CharacterCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override Medusa DeepCopy()
+	{
+		return new Medusa(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
 	}
 }

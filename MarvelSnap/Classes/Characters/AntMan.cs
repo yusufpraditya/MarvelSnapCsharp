@@ -1,7 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class AntMan : CharacterCard
 {
@@ -15,44 +12,27 @@ public class AntMan : CharacterCard
 
 	}
 
-	public AntMan()
-	{
-
-	}
-
-
 	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
-		if (!IsRevealed)
-		{
-			IsRevealed = true;
-			CardTurn = controller.Turn;
-			controller.NotifyCardRevealed(player, this);
-		}
+		if (IsRevealed) return;
+		IsRevealed = true;
+		CardTurn = controller.Turn;
+		controller.NotifyCardRevealed(player, this);
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
 	{
 		List<CharacterCard> arenaCards = controller.GetArenaCards(player, Arena);
 
-		if (!IsOngoingEffectActivated)
+		if (!IsOngoingEffectActivated && arenaCards.Count == 4)
 		{
-			if (arenaCards.Count == 4)
-			{
-				IsOngoingEffectActivated = true;
-				OngoingEffectActivationCount++;
-				_buffId = GetLatestBuffId(player) + 1;
-				AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
-				controller.NotifyPowerChanged(player, this);
-			}
-		}
-	}
+			IsOngoingEffectActivated = true;
+			OngoingEffectActivationCount++;
+			_buffId = GetLatestBuffId(player) + 1;
+			AddBuff(player.Id, new Buff(_buffId, _BuffValue, _BuffType, _BuffOperation));
+			controller.NotifyPowerChanged(player, this);
 
-	public override AntMan? DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		AntMan? card = JsonSerializer.Deserialize<AntMan>(json);
-		return card;
+		}
 	}
 
 	public override void OnDestroyed(IPlayer player, MarvelSnapGame controller)
@@ -63,5 +43,10 @@ public class AntMan : CharacterCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override AntMan DeepCopy()
+	{
+		return new AntMan(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
 	}
 }

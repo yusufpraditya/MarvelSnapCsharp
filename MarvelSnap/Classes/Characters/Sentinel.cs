@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace MarvelSnap;
+﻿namespace MarvelSnap;
 
 public class Sentinel : CharacterCard
 {
@@ -9,28 +7,13 @@ public class Sentinel : CharacterCard
 
 	}
 
-	public Sentinel()
-	{
-
-	}
-
 	public override void OnReveal(IPlayer player, MarvelSnapGame controller)
 	{
 		if (IsRevealed) return;
-		IsRevealed = true;
 		CardTurn = controller.Turn;
 		controller.NotifyCardRevealed(player, this);
-		var newSentinel = DeepCopy();
-		newSentinel.IsRevealed = false;
-
-		controller.AddCardInHand(player, newSentinel);
-	}
-
-	public override Sentinel DeepCopy()
-	{
-		string json = JsonSerializer.Serialize(this);
-		Sentinel card = JsonSerializer.Deserialize<Sentinel>(json)!;
-		return card;
+		controller.AddCardInHand(player, DeepCopy());
+		IsRevealed = true;
 	}
 
 	public override void Ongoing(IPlayer player, MarvelSnapGame controller)
@@ -46,5 +29,10 @@ public class Sentinel : CharacterCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override Sentinel DeepCopy()
+	{
+		return new Sentinel(CharacterType.Sentinel, "Sentinel", "On Reveal: Add another Sentinel to your hand.", 2, 3, true);
 	}
 }
