@@ -45,4 +45,9 @@ public class StarkTower : LocationCard
 	{
 		// ignored
 	}
+
+    public override StarkTower DeepCopy()
+    {
+        return new StarkTower(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
+    }
 }

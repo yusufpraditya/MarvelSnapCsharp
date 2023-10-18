@@ -77,4 +77,9 @@ public class DreamDimension : LocationCard
 	{
 		// ignored
 	}
+
+    public override DreamDimension DeepCopy()
+    {
+        return new DreamDimension(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
+    }
 }

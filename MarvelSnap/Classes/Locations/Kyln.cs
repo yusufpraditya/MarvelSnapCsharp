@@ -36,4 +36,9 @@ public class Kyln : LocationCard
 	{
 		// ignored
 	}
+
+    public override Kyln DeepCopy()
+    {
+        return new Kyln(LocationType.Kyln, "Kyln", "You can't play cards here after turn 4.");
+    }
 }

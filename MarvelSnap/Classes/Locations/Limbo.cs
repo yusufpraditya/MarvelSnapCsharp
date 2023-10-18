@@ -29,4 +29,9 @@ public class Limbo : LocationCard
 	{
 		// ignored
 	}
+
+    public override Limbo DeepCopy()
+    {
+        return new Limbo(LocationType.Limbo, "Limbo", "There is a turn 7 this game.");
+    }
 }

@@ -42,4 +42,9 @@ public class OnslaughtsCitadel : LocationCard
 	{
 		// ignored
 	}
+
+    public override OnslaughtsCitadel DeepCopy()
+    {
+        return new OnslaughtsCitadel(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
+    }
 }

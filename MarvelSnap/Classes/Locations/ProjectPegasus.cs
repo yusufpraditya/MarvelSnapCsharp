@@ -6,12 +6,7 @@ public class ProjectPegasus : LocationCard
 	{
 
 	}
-
-	public ProjectPegasus()
-	{
-
-	}
-
+	
 	public override void OnReveal(IPlayer? player, MarvelSnapGame controller)
 	{
 		if (IsRevealed) return;
@@ -48,5 +43,10 @@ public class ProjectPegasus : LocationCard
 	public override void OnMoved(IPlayer player, MarvelSnapGame controller)
 	{
 		// ignored
+	}
+
+	public override ProjectPegasus DeepCopy()
+	{
+		return new ProjectPegasus(LocationType.ProjectPegasus, "Project Pegasus", "+5 Energy this turn.");
 	}
 }
