@@ -7,7 +7,6 @@ public class MarvelSnapGame
 	private IPlayer _player1, _player2;
 	private List<LocationCard> _locations = new();
 	private List<IPlayer> _players = new();
-	private GameStatus _gameStatus = GameStatus.NotStarted;
 	private Dictionary<IPlayer, Deck> _decks = new();
 	private Dictionary<ArenaType, Arena> _dictArenas = new();
 	private List<Arena> _listArenas = new();
@@ -59,22 +58,22 @@ public class MarvelSnapGame
 		_futureTasks.Add(_player1.Id, new());
 		_futureTasks.Add(_player2.Id, new());
 
-		AntMan antman = new(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
-		Medusa medusa = new(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
-		Hawkeye hawkeye = new(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
-		StarLord starLord = new(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
-		Sentinel sentinel = new(CharacterType.Sentinel, "Sentinel", "On Reveal: Add another Sentinel to your hand.", 2, 3, true);
+		AntMan antman = new AntMan(CharacterType.AntMan, "Ant-Man", "Ongoing: If you have 3 other cards here, +3 Power.", 1, 1, true);
+		Medusa medusa = new Medusa(CharacterType.Medusa, "Medusa", "On Reveal: If this is at the middle location, +3 Power.", 2, 2, true);
+		Hawkeye hawkeye = new Hawkeye(CharacterType.Hawkeye, "Hawkeye", "On Reveal: If you play a card here next turn, +3 Power.", 1, 1, true);
+		StarLord starLord = new StarLord(CharacterType.StarLord, "Star Lord", "On Reveal: If your opponent played a card here this turn, +3 Power.", 2, 2, true);
+		Sentinel sentinel = new Sentinel(CharacterType.Sentinel, "Sentinel", "On Reveal: Add another Sentinel to your hand.", 2, 3, true);
 		MisterFantastic misterFantastic = new(CharacterType.MisterFantastic, "Mister Fantastic", "Ongoing: Adjacent locations have +2 Power.", 3, 2, true);
-		IronMan ironMan = new(CharacterType.IronMan, "Iron Man", "Ongoing: Your total Power is doubled at this location.", 5, 0, true);
+		IronMan ironMan = new IronMan(CharacterType.IronMan, "Iron Man", "Ongoing: Your total Power is doubled at this location.", 5, 0, true);
 		Hulk hulk = new Hulk(CharacterType.Hulk, "Hulk", "HULK SMASH!", 6, 12, false);
 		Elektra elektra = new Elektra(CharacterType.Elektra, "Elektra", "On Reveal: Destroy a random enemy 1-Cost card at this location.", 1, 1, true);
 
-		OnslaughtsCitadel onslaughtsCitadel = new(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
-		DreamDimension dreamDimension = new(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
-		Kyln kyln = new(LocationType.Kyln, "Kyln", "You can't play cards here after turn 4.");
-		Limbo limbo = new(LocationType.Limbo, "Limbo", "There is a turn 7 this game.");
-		ProjectPegasus projectPegasus = new(LocationType.ProjectPegasus, "Project Pegasus", "+5 Energy this turn.");
-		StarkTower starkTower = new(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
+		OnslaughtsCitadel onslaughtsCitadel = new OnslaughtsCitadel(LocationType.OnslaughtsCitadel, "Onslaught's Citadel", "Ongoing effects here are doubled.");
+		DreamDimension dreamDimension = new DreamDimension(LocationType.DreamDimension, "Dream Dimension", "On turn 5, cards cost 1 more.");
+		Kyln kyln = new Kyln(LocationType.Kyln, "Kyln", "You can't play cards here after turn 4.");
+		Limbo limbo = new Limbo(LocationType.Limbo, "Limbo", "There is a turn 7 this game.");
+		ProjectPegasus projectPegasus = new ProjectPegasus(LocationType.ProjectPegasus, "Project Pegasus", "+5 Energy this turn.");
+		StarkTower starkTower = new StarkTower(LocationType.StarkTower, "Stark Tower", "After turn 5, give all cards here +2 Power.");
 
 		_locations.Add(onslaughtsCitadel);
 		_locations.Add(dreamDimension);
@@ -82,8 +81,6 @@ public class MarvelSnapGame
 		_locations.Add(limbo);
 		_locations.Add(projectPegasus);
 		_locations.Add(starkTower);
-
-
 
 		Deck deck1 = new(_player1.Id, _player1.Name);
 		Deck deck2 = new(_player2.Id, _player2.Name);
@@ -150,44 +147,28 @@ public class MarvelSnapGame
 	}
 
 	/// <summary>
-	/// Sets the current status of the game.
+	/// Gets list of players that are currently playing the game.
 	/// </summary>
-	/// <param name="gameStatus">Current game status.</param>
-	public void SetGameStatus(GameStatus gameStatus)
-	{
-		_gameStatus = gameStatus;
-	}
-
-	/// <summary>
-	/// Gets the current status of the game.
-	/// </summary>
-	/// <returns> current game status.</returns>
-	public GameStatus GetGameStatus()
-	{
-		return _gameStatus;
-	}
-
-	/// <summary>
-	/// Sets the player name.
-	/// </summary>
-	/// <param name="player">Instance of player.</param>
-	/// <param name="name">Player name.</param>
-	public void SetPlayerName(IPlayer player, string? name) // remove
-	{
-		player.Name = name;
-	}
-
+	/// <returns>List of players.</returns>
 	public List<IPlayer> GetPlayers()
 	{
 		return _players;
 	}
 
+	/// <summary>
+	/// Gets the opponent of specified player.
+	/// </summary>
+	/// <param name="player">The player that will be used to check its opponent.</param>
+	/// <returns>IPlayer of opponent.</returns>
 	public IPlayer GetOpponent(IPlayer player)
 	{
 		if (_players[0] != player) return _players[0];
 		return _players[1];
 	}
 
+	/// <summary>
+	/// Shuffles locations for each game.
+	/// </summary>
 	private void ShuffleLocation()
 	{
 		for (int i = _locations.Count - 1; i > 0; i--)
@@ -199,6 +180,10 @@ public class MarvelSnapGame
 		}
 	}
 
+	/// <summary>
+	/// Sets current player's turn.
+	/// </summary>
+	/// <param name="player">Player which will be set its turn.</param>
 	public void SetPlayerTurn(IPlayer? player)
 	{
 		if (player == _player1)
@@ -213,18 +198,31 @@ public class MarvelSnapGame
 		}
 	}
 
+	/// <summary>
+	/// Checks if two players have played.
+	/// </summary>
+	/// <returns>true if both players have played; otherwise, false.</returns>
 	public bool PlayersHavePlayed()
 	{
 		if (_playerHasPlayed[_player1] == true && _playerHasPlayed[_player2] == true) return true;
 		else return false;
 	}
 
+	/// <summary>
+	/// Gets current player's turn.
+	/// </summary>
+	/// <returns>Player of current turn.</returns>
 	public IPlayer GetPlayerTurn()
 	{
 		if (_playerTurn[_player1] == true) return _player1;
 		else return _player2;
 	}
 
+	/// <summary>
+	/// Attempts to get next player's turn.
+	/// </summary>
+	/// <param name="nextPlayer">Instance of next player.</param>
+	/// <returns>true if next player exists; otherwise, false.</returns>
 	public bool TryGetNextPlayer(out IPlayer? nextPlayer)
 	{
 		nextPlayer = null;
@@ -390,14 +388,6 @@ public class MarvelSnapGame
 		if (_energyBuffs[player.Id].Count > 0)
 		{
 			_energyBuffs[player.Id].Aggregate(currentEnergy, (acc, value) => value.Apply(acc));
-
-			// foreach (var buff in _energyBuffs[player.Id]) 
-			// {
-			// 	if (currentEnergy > 0)
-			// 		currentEnergy += buff.Apply(0);
-			// 	else
-			// 		currentEnergy += buff.Apply(_baseEnergy);
-			// }
 			return currentEnergy - _energySpent;
 		}
 		else
@@ -544,43 +534,33 @@ public class MarvelSnapGame
 
 	public bool PutCardInArena(IPlayer player, ArenaType type, CharacterCard card)
 	{
-		if (!HasCardInArena(player, type, card))
-		{
-			// early return
-			bool success = _dictArenas[type].PutCard(player, card);
-			if (success)
-			{
-				_playerCardsInArena[player].Add(card);
-				card.Arena = type;
-				card.CardTurn = Turn;
-				RemoveCardInHand(player, card);
-				return true;
-			}
-			return false;
-		}
-		return false;
+		if (HasCardInArena(player, type, card)) return false;
+		
+		bool success = _dictArenas[type].PutCard(player, card);
+		
+		if (!success) return false;
+		_playerCardsInArena[player].Add(card);
+		card.Arena = type;
+		card.CardTurn = Turn;
+		RemoveCardInHand(player, card);
+		return true;
 	}
 
 	public bool TakeCardFromArena(IPlayer player, ArenaType type, CharacterCard card)
 	{
-		if (HasCardInArena(player, type, card) && !card.IsRevealed) // early return
-		{
-			// early return
-			bool success = _dictArenas[type].TakeCard(player, card);
-			if (success)
-			{
-				_playerCardsInArena[player].Remove(card);
-				AddCardInHand(player, card);
-				return true;
-			}
-		}
-		return false;
+		if (!HasCardInArena(player, type, card) || card.IsRevealed) return false;
+		
+		bool success = _dictArenas[type].TakeCard(player, card);
+		
+		if (!success) return false;
+		_playerCardsInArena[player].Remove(card);
+		AddCardInHand(player, card);
+		return true;
 	}
 
 	private bool HasCardInArena(IPlayer player, ArenaType type, CharacterCard card)
 	{
-		if (_dictArenas[type].GetCards(player).Contains(card)) return true;
-		return false;
+		return _dictArenas[type].GetCards(player).Contains(card);
 	}
 
 	public IPlayer? GetPlayerWinner()
@@ -622,7 +602,7 @@ public class MarvelSnapGame
 
 		if (player1Count > player2Count) return _player1;
 		else if (player2Count > player1Count) return _player2;
-		else return null;
+		return null;
 	}
 
 	public void NotifyCardRevealed(IPlayer? player, Card card)

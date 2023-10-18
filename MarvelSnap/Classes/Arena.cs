@@ -35,12 +35,9 @@ public class Arena
 
 	public bool TakeCard(IPlayer player, CharacterCard card)
 	{
-		if (_playerCardsInArena[player].Count > 0)
-		{
-			_playerCardsInArena[player].Remove(card);
-			return true;
-		}
-		return false;
+		if (_playerCardsInArena[player].Count <= 0) return false;
+		_playerCardsInArena[player].Remove(card);
+		return true;
 	}
 
 	public List<CharacterCard> GetCards(IPlayer player)
@@ -80,11 +77,8 @@ public class Arena
 
 	public int GetLatestBuffId(IPlayer player)
 	{
-		if (_powerBuffs.ContainsKey(player.Id))
-		{
-			return _powerBuffs[player.Id].Count - 1;
-		}
-		return 0;
+		if (!_powerBuffs.ContainsKey(player.Id)) return 0;
+		return _powerBuffs[player.Id].Count - 1;
 	}
 
 	public int GetTotalPower(IPlayer player)
