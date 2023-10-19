@@ -215,7 +215,7 @@ public class MarvelSnapGame
 	public IPlayer GetPlayerTurn()
 	{
 		if (_playerTurn[_player1] == true) return _player1;
-		else return _player2;
+		return _player2;
 	}
 
 	/// <summary>
