@@ -1,4 +1,6 @@
 ﻿using MarvelSnap;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Spectre.Console;
 
 namespace Program;
@@ -24,7 +26,14 @@ public partial class Program
 
 		IPlayer player1 = new Player(1);
 		IPlayer player2 = new Player(2);
-		MarvelSnapGame game = new(player1, player2);
+		
+		var loggerFactory = LoggerFactory.Create(builder =>
+		{
+			builder.ClearProviders();
+			builder.AddNLog("nlog.config");
+		});
+		ILogger<MarvelSnapGame> logger = loggerFactory.CreateLogger<MarvelSnapGame>();
+		MarvelSnapGame game = new(player1, player2, logger);
 
 		if (!isSpectre)
 		{

@@ -1,9 +1,11 @@
 ﻿using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
 
 namespace MarvelSnap;
 
 public class MarvelSnapGame
 {
+	private ILogger<MarvelSnapGame>? _log;
 	private IPlayer _player1, _player2;
 	private List<LocationCard> _locations = new();
 	private List<IPlayer> _players = new();
@@ -32,7 +34,7 @@ public class MarvelSnapGame
 	public int Turn { get; set; } = 1;
 	public int MaxTurn { get; set; } = 6;
 
-	public MarvelSnapGame(IPlayer player1, IPlayer player2)
+	public MarvelSnapGame(IPlayer player1, IPlayer player2, ILogger<MarvelSnapGame>? log = null)
 	{
 		_player1 = player1;
 		_player2 = player2;
@@ -124,6 +126,8 @@ public class MarvelSnapGame
 		_dictArenas[ArenaType.Arena1] = arena1;
 		_dictArenas[ArenaType.Arena2] = arena2;
 		_dictArenas[ArenaType.Arena3] = arena3;
+		
+		_log = log;
 	}
 
 	/// <summary>
@@ -143,6 +147,8 @@ public class MarvelSnapGame
 
 			_locations[0].OnReveal(null, this);
 			_locations[0].Ongoing(null, this);
+			
+			_log?.LogInformation("Game initialized. First location ({0}) is revealed.", _locations[0].Name);
 		}
 	}
 
@@ -162,6 +168,7 @@ public class MarvelSnapGame
 	/// <returns>IPlayer of opponent.</returns>
 	public IPlayer GetOpponent(IPlayer player)
 	{
+		if (!_players.Contains(player)) throw new Exception("Player does not exist!");
 		if (_players[0] != player) return _players[0];
 		return _players[1];
 	}
