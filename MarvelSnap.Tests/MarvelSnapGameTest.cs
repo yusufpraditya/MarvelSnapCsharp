@@ -37,6 +37,14 @@ public class MarvelSnapGameTest
 	}
 	
 	[Fact]
+	public void GetOpponent_Exception_PlayerDoesNotExist() 
+	{
+		Mock<IPlayer> _player3 = new Mock<IPlayer>().SetupProperty(p => p.Id, 3);
+		
+		Assert.Throws<Exception>(() => _controller.GetOpponent(_player3.Object));
+	}
+	
+	[Fact]
 	public void GetPlayerTurn_ReturnsIPlayer() 
 	{
 		_controller.SetPlayerTurn(_player1.Object);
