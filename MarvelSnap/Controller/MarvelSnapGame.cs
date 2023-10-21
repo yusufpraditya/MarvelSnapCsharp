@@ -197,11 +197,13 @@ public class MarvelSnapGame
 		{
 			_playerTurn[_player1] = true;
 			_playerTurn[_player2] = false;
+			_log?.LogInformation("Player turn is set to {0}.", _player1.Name);
 		}
 		else
 		{
 			_playerTurn[_player1] = false;
 			_playerTurn[_player2] = true;
+			_log?.LogInformation("Player turn is set to {0}.", _player2.Name);
 		}
 	}
 
@@ -251,6 +253,7 @@ public class MarvelSnapGame
 			if (Turn > MaxTurn)
 			{
 				OnGameEnded?.Invoke(this, GetPlayerWinner());
+				_log?.LogInformation("Game has ended.");
 				return false;
 			}
 			_locations[0].Ongoing(null, this);
@@ -258,11 +261,13 @@ public class MarvelSnapGame
 			{
 				_locations[1].OnReveal(null, this);
 				_locations[1].Ongoing(null, this);
+				_log?.LogInformation("Location 2 is revealed ({0}).", _locations[1].Name);
 			}
 			if (Turn >= 3)
 			{
 				_locations[2].OnReveal(null, this);
 				_locations[2].Ongoing(null, this);
+				_log?.LogInformation("Location 3 is revealed ({0})", _locations[2]. Name);
 			}
 			_baseEnergy = Turn;
 			_energySpent = 0;
@@ -274,6 +279,8 @@ public class MarvelSnapGame
 				DrawCard(_player1);
 			if (_playerCardsInHand[_player2].Count < MaxCardInHand)
 				DrawCard(_player2);
+			
+			_log?.LogInformation("{0} and {1} has drawn their new card.", _player1.Name, _player2.Name);
 
 			List<IPlayer> revealers = GetRevealers();
 			foreach (var revealer in revealers)
@@ -282,7 +289,12 @@ public class MarvelSnapGame
 				for (int i = _futureTasks[revealer.Id].Count - 1; i >= 0; i--)
 				{
 					bool status = _futureTasks[revealer.Id][i].Run(Turn);
-					if (status) RemoveFutureTask(revealer.Id, _futureTasks[revealer.Id][i]);
+					if (status) 
+					{
+						_log?.LogInformation("Running future task.");
+						RemoveFutureTask(revealer.Id, _futureTasks[revealer.Id][i]);
+						_log?.LogInformation("Future task removed.");
+					}
 				}
 			}
 			return true;
@@ -295,10 +307,12 @@ public class MarvelSnapGame
 
 	public void EndTurn(IPlayer player)
 	{
+		_log?.LogInformation("{0} has ended the turn.", player.Name);
 		_playerHasPlayed[player] = true;
 
 		if (PlayersHavePlayed())
 		{
+			_log?.LogInformation("Start revealing each card that has been placed this turn.");
 			List<IPlayer> revealers = GetRevealers();
 
 			foreach (var revealer in revealers)
@@ -408,6 +422,7 @@ public class MarvelSnapGame
 		CharacterCard? cardToDraw = _decks[player].Draw();
 		if (cardToDraw != null)
 		{
+			_log?.LogInformation("Card {0} is drawn to {1}.", cardToDraw.Name, player.Name);
 			AddCardInHand(player, cardToDraw);
 			return true;
 		}
@@ -418,6 +433,7 @@ public class MarvelSnapGame
 	{
 		if (!_playerCardsInHand.ContainsKey(player)) return false;
 		_playerCardsInHand[player].Add(card);
+		_log?.LogInformation("Card {0} is added to {1}'s hand.", card?.Name, player.Name);
 		return true;
 	}
 
@@ -425,6 +441,7 @@ public class MarvelSnapGame
 	{
 		if (!_playerCardsInHand.ContainsKey(player)) return false;
 		_playerCardsInHand[player].Remove(card);
+		_log?.LogInformation("Card {0} is removed from {1}'s hand.", card.Name, player.Name);
 		return true;
 	}
 
@@ -491,6 +508,7 @@ public class MarvelSnapGame
 				card.OnDestroyed(player, this);
 				_playerCardsInArena[player].Remove(card);
 				_destroyedCards[player].Add(card);
+				_log?.LogInformation("Card {0} owned by {1} is destroyed.", card.Name, player.Name);
 				return true;
 			}
 		}
@@ -549,6 +567,7 @@ public class MarvelSnapGame
 		_playerCardsInArena[player].Add(card);
 		card.Arena = type;
 		card.CardTurn = Turn;
+		_log?.LogInformation("Card {0} is placed at {1}.", card.Name, card.Arena);
 		RemoveCardInHand(player, card);
 		return true;
 	}
@@ -561,6 +580,7 @@ public class MarvelSnapGame
 		
 		if (!success) return false;
 		_playerCardsInArena[player].Remove(card);
+		_log?.LogInformation("Card {0} is taken from {1}", card.Name, card.Arena);
 		AddCardInHand(player, card);
 		return true;
 	}
@@ -614,26 +634,31 @@ public class MarvelSnapGame
 
 	public void NotifyCardRevealed(IPlayer? player, Card card)
 	{
+		_log?.LogInformation("Notify revealed card to listeners.");
 		OnCardRevealed?.Invoke(player, card);
 	}
 
 	public void NotifyPowerChanged(IPlayer player, CharacterCard card)
 	{
+		_log?.LogInformation("Notify card's power changes to listeners.");
 		OnCardPowerChanged?.Invoke(player, card);
 	}
 
 	public void NotifyArenaPowerChanged(IPlayer player, Arena arena)
 	{
+		_log?.LogInformation("Notify arena's power changes to listeners.");
 		OnArenaPowerChanged?.Invoke(player, arena);
 	}
 
 	public void NotifyEnergyCostChanged(IPlayer player, CharacterCard card)
 	{
+		_log?.LogInformation("Notify energy cost changes to listeners.");
 		OnEnergyCostChanged?.Invoke(player, card);
 	}
 
 	public void NotifyCardDestroyed(IPlayer player, CharacterCard destroyer, CharacterCard target)
 	{
+		_log?.LogInformation("Notify destroyed card to listeners.");
 		OnCardDestroyed?.Invoke(player, destroyer, target);
 	}
 }
