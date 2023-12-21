@@ -15,7 +15,7 @@ Below are character cards that are currently being developed:
 11. Abomination
 12. Hulk
 
-## Location Cards
+### Location Cards
 Below are location cards that are currently being developed:
 1. Onslaught's Citadel
 2. Dream Dimension
@@ -24,7 +24,7 @@ Below are location cards that are currently being developed:
 5. Project Pegasus
 6. Stark Tower
 
-## Game Flow
+### Game Flow
 Player's energy = current turn
 1. Turn 1
     - Reveal Location 1
